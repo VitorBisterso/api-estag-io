@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  STUDENT
+  PROFESSOR
+}
+
+enum OpportunityType {
+  REMOTE
+  LOCAL
+}
+
+enum ConfirmationStatus {
+  APPROVED
+  REJECTED
+  PENDING
+}
+
+model CEX {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email    String @unique
+  password String
+
+  companiesReviewed   Company[]
+  internshipsReviewed Internship[]
+  logsGenerated       CEXConfirmationStatusLog[]
+}
+
+model CEXConfirmationStatusLog {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  message String
+  status  ConfirmationStatus
+
+  reporterId Int
+  reporter   CEX @relation(fields: [reporterId], references: [id])
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email    String   @unique
+  name     String
+  password String
+  type     UserType
+
+  opportunities OpportunityUser[]
+  steps         ProcessStepUser[]
+
+  internship          Internship?  @relation("student_internship")
+  orientedInternships Internship[]
+
+  meetingsAsOwner Meeting[] @relation("owner_meeting")
+  meetingsAsGuest Meeting[] @relation("guest_meeting")
+}
+
+model Company {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cnpj       String  @unique
+  email      String  @unique
+  name       String
+  password   String
+  phone      String
+  isApproved Boolean
+
+  cexApproverId Int
+  cex           CEX @relation(fields: [cexApproverId], references: [id])
+
+  opportunities Opportunity[]
+}
+
+model Opportunity {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title          String
+  description    String
+  salary         Decimal
+  deadline       DateTime
+  weeklyWorkload Int
+  type           OpportunityType
+  isActive       Boolean
+
+  companyId    Int
+  company      Company           @relation(fields: [companyId], references: [id])
+  applicants   OpportunityUser[]
+  processSteps ProcessStep[]
+
+  job Internship?
+}
+
+model OpportunityUser {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId        Int
+  user          User        @relation(fields: [userId], references: [id])
+  opportunityId Int
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+
+  @@id([userId, opportunityId])
+}
+
+model ProcessStep {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title          String
+  description    String
+  deadline       DateTime
+  onlyOnDeadline Boolean
+
+  opportunityId Int
+  opportunity   Opportunity       @relation(fields: [opportunityId], references: [id])
+  applicants    ProcessStepUser[]
+}
+
+model ProcessStepUser {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId        Int
+  user          User        @relation(fields: [userId], references: [id])
+  processStepId Int
+  ProcessStep   ProcessStep @relation(fields: [processStepId], references: [id])
+
+  @@id([userId, processStepId])
+}
+
+model Internship {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  initialDate DateTime
+  until       DateTime
+  managerName String
+  isApproved  Boolean
+
+  studentId Int  @unique
+  student   User @relation("student_internship", fields: [studentId], references: [id])
+
+  professorId Int
+  professor   User @relation(fields: [professorId], references: [id])
+
+  jobId Int         @unique
+  job   Opportunity @relation(fields: [jobId], references: [id])
+
+  cexApproverId Int
+  cex           CEX @relation(fields: [cexApproverId], references: [id])
+}
+
+model Meeting {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title       String
+  description String
+  date        DateTime
+
+  ownerId Int
+  owner   User @relation("owner_meeting", fields: [ownerId], references: [id])
+
+  guestId Int
+  guest   User @relation("guest_meeting", fields: [guestId], references: [id])
+}
