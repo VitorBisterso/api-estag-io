@@ -7,45 +7,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserType {
-  STUDENT
-  PROFESSOR
+enum CompanyField {
+  AUTOMOBILISTICO
+  BANCO
+  BENS_DE_CONSUMO
+  COMIDAS_BEBIDAS
+  EDUCACAO
+  EMPREITEIRA
+  FARMACEUTICO_QUIMICOS
+  HOSPITAL_PLANO_DE_SAUDE
+  INDUSTRIA
+  LOGISTICA
+  MIDIA_PROPAGANDA
+  ONG
+  PETROLEO_ENERGIA_AMBIENTAIS
+  SAUDE_BEM_ESTAR
+  SEGURADORA
+  SERVICOS_FINANCEIROS
+  VAREJO
+  TI_TELECOMUNICACOES
 }
 
 enum OpportunityType {
   REMOTE
   LOCAL
-}
-
-enum ConfirmationStatus {
-  APPROVED
-  REJECTED
-  PENDING
-}
-
-model CEX {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  email    String @unique
-  password String
-
-  companiesReviewed   Company[]
-  internshipsReviewed Internship[]
-  logsGenerated       CEXConfirmationStatusLog[]
-}
-
-model CEXConfirmationStatusLog {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  message String
-  status  ConfirmationStatus
-
-  reporterId Int
-  reporter   CEX @relation(fields: [reporterId], references: [id])
 }
 
 model User {
@@ -56,16 +41,12 @@ model User {
   email    String   @unique
   name     String
   password String
-  type     UserType
+  birthday DateTime
 
+  reviews       Review[]
   opportunities OpportunityUser[]
-  steps         ProcessStepUser[]
-
-  internship          Internship?  @relation("student_internship")
-  orientedInternships Internship[]
-
-  meetingsAsOwner Meeting[] @relation("owner_meeting")
-  meetingsAsGuest Meeting[] @relation("guest_meeting")
+  processSteps  ProcessStepUser[]
+  internship    Internship?       @relation("student_internship")
 }
 
 model Company {
@@ -73,16 +54,14 @@ model Company {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cnpj       String  @unique
-  email      String  @unique
-  name       String
-  password   String
-  phone      String
-  isApproved Boolean
+  cnpj     String  @unique
+  email    String  @unique
+  name     String
+  password String
+  phone    String
+  rating   Decimal
 
-  cexApproverId Int
-  cex           CEX @relation(fields: [cexApproverId], references: [id])
-
+  reviews       Review[]
   opportunities Opportunity[]
 }
 
@@ -97,22 +76,23 @@ model Opportunity {
   deadline       DateTime
   weeklyWorkload Int
   type           OpportunityType
-  isActive       Boolean
 
-  companyId    Int
-  company      Company           @relation(fields: [companyId], references: [id])
-  applicants   OpportunityUser[]
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id])
+
+  applicants OpportunityUser[]
+
   processSteps ProcessStep[]
-
-  job Internship?
+  job          Internship?
 }
 
 model OpportunityUser {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userId        Int
-  user          User        @relation(fields: [userId], references: [id])
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
   opportunityId Int
   opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
 
@@ -130,20 +110,37 @@ model ProcessStep {
   onlyOnDeadline Boolean
 
   opportunityId Int
-  opportunity   Opportunity       @relation(fields: [opportunityId], references: [id])
-  applicants    ProcessStepUser[]
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+
+  applicants ProcessStepUser[]
 }
 
 model ProcessStepUser {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userId        Int
-  user          User        @relation(fields: [userId], references: [id])
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
   processStepId Int
   ProcessStep   ProcessStep @relation(fields: [processStepId], references: [id])
 
   @@id([userId, processStepId])
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title       String
+  description String
+
+  studentId Int
+  student   User @relation(fields: [studentId], references: [id])
+
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id])
 }
 
 model Internship {
@@ -159,28 +156,6 @@ model Internship {
   studentId Int  @unique
   student   User @relation("student_internship", fields: [studentId], references: [id])
 
-  professorId Int
-  professor   User @relation(fields: [professorId], references: [id])
-
   jobId Int         @unique
   job   Opportunity @relation(fields: [jobId], references: [id])
-
-  cexApproverId Int
-  cex           CEX @relation(fields: [cexApproverId], references: [id])
-}
-
-model Meeting {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  title       String
-  description String
-  date        DateTime
-
-  ownerId Int
-  owner   User @relation("owner_meeting", fields: [ownerId], references: [id])
-
-  guestId Int
-  guest   User @relation("guest_meeting", fields: [guestId], references: [id])
 }
