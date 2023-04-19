@@ -54,12 +54,12 @@ model Company {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cnpj     String  @unique
-  email    String  @unique
+  cnpj     String   @unique
+  email    String   @unique
   name     String
   password String
   phone    String
-  rating   Decimal
+  rating   Decimal?
 
   reviews       Review[]
   opportunities Opportunity[]
