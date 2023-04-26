@@ -17,6 +17,7 @@ import {
   SignInResponse,
   RefreshDto,
 } from './dto';
+import { PASSWORD_SIZE } from 'src/consts';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +30,12 @@ export class AuthService {
   async signupUser(dto: AuthUserDto) {
     const { email, name, password, birthday } =
       dto;
+
+    if (password.length <= PASSWORD_SIZE)
+      throw new BadRequestException(
+        `Password must have at least ${PASSWORD_SIZE} characters`,
+      );
+
     const hash = await argon.hash(password);
 
     try {
@@ -66,6 +73,12 @@ export class AuthService {
   async signupCompany(dto: AuthCompanyDto) {
     const { cnpj, email, name, password, phone } =
       dto;
+
+    if (password.length <= PASSWORD_SIZE)
+      throw new BadRequestException(
+        `Password must have at least ${PASSWORD_SIZE}`,
+      );
+
     const hash = await argon.hash(password);
 
     try {
