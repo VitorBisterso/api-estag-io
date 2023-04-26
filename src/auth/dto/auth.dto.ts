@@ -119,3 +119,21 @@ export class SignInResponse {
   })
   refreshToken: string;
 }
+
+export class RefreshDto {
+  @ApiProperty({
+    example: 'email@email.com',
+    description: 'The user email',
+  })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty({
+    example: 'USER | COMPANY',
+    description: 'The user type',
+  })
+  @IsString()
+  @IsNotEmpty()
+  userType: USER_TYPE;
+}

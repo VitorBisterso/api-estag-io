@@ -4,6 +4,8 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -16,7 +18,9 @@ import {
   AuthSignInDto,
   AuthCompanyDto,
   SignInResponse,
+  RefreshDto,
 } from './dto';
+import { RefreshTokenGuard } from './guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -55,5 +59,21 @@ export class AuthController {
   @Post('signin')
   signin(@Body() dto: AuthSignInDto) {
     return this.authService.signin(dto);
+  }
+
+  @UseGuards(RefreshTokenGuard)
+  @Post('refresh')
+  refreshTokens(
+    @Req() req: Request,
+    @Body()
+    dto: RefreshDto,
+  ) {
+    const { refreshToken } = (
+      req as Record<any, any>
+    ).user;
+    return this.authService.refreshToken(
+      dto,
+      refreshToken,
+    );
   }
 }

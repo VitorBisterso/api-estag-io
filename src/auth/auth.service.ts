@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -12,6 +14,8 @@ import {
   AuthSignInDto,
   USER_TYPE,
   AuthCompanyDto,
+  SignInResponse,
+  RefreshDto,
 } from './dto';
 
 @Injectable()
@@ -37,11 +41,13 @@ export class AuthService {
         },
       });
 
-      return this.signToken(
-        user.id,
-        user.email,
-        'USER',
-      );
+      return {
+        accessToken: await this.signToken(
+          user.id,
+          user.email,
+          'USER',
+        ),
+      };
     } catch (error) {
       if (
         error instanceof
@@ -74,11 +80,13 @@ export class AuthService {
           },
         });
 
-      return this.signToken(
-        company.id,
-        company.email,
-        'COMPANY',
-      );
+      return {
+        accessToken: await this.signToken(
+          company.id,
+          company.email,
+          'COMPANY',
+        ),
+      };
     } catch (error) {
       if (
         error instanceof
@@ -94,7 +102,9 @@ export class AuthService {
     }
   }
 
-  async signin(dto: AuthSignInDto) {
+  async signin(
+    dto: AuthSignInDto,
+  ): Promise<SignInResponse> {
     const { userType } = dto;
 
     let user;
@@ -129,34 +139,99 @@ export class AuthService {
         'Invalid credentials',
       );
 
-    return this.signToken(
+    const accessToken = await this.signToken(
       user.id,
       user.email,
       dto.userType,
     );
+
+    const refreshToken = await this.signToken(
+      user.id,
+      user.email,
+      dto.userType,
+      true,
+    );
+
+    return { accessToken, refreshToken };
   }
 
   async signToken(
     userId: number,
     email: string,
     userType: USER_TYPE,
-  ): Promise<{ access_token: string }> {
+    refresh = false,
+  ): Promise<string> {
     const payload = {
       sub: userId,
       email,
       userType,
     };
 
-    const secret = this.config.get('JWT_SECRET');
+    const secret = refresh
+      ? this.config.get('JWT_REFRESH_SECRET')
+      : this.config.get('JWT_SECRET');
     const token = await this.jwt.signAsync(
       payload,
       {
-        expiresIn: '15m',
+        expiresIn: refresh ? '45d' : '3h',
         secret,
       },
     );
+    return token;
+  }
+
+  async refreshToken(
+    dto: RefreshDto,
+    refreshToken: string,
+  ) {
+    const valid = await this.jwt.verifyAsync(
+      refreshToken,
+      {
+        secret: this.config.get(
+          'JWT_REFRESH_SECRET',
+        ),
+      },
+    );
+
+    if (!valid)
+      throw new BadRequestException(
+        'Invalid refresh token',
+      );
+
+    const { userType } = dto;
+    let user;
+    if (userType === 'USER') {
+      user = await this.prisma.user.findUnique({
+        where: {
+          email: dto.email,
+        },
+      });
+    } else {
+      user = await this.prisma.company.findUnique(
+        {
+          where: {
+            email: dto.email,
+          },
+        },
+      );
+    }
+
+    if (!user)
+      throw new ForbiddenException(
+        'Invalid credentials',
+      );
+
+    if (!user)
+      throw new NotFoundException(
+        `User with email "${dto.email}" not found`,
+      );
+
     return {
-      access_token: token,
+      accessToken: await this.signToken(
+        user.id,
+        user.email,
+        userType,
+      ),
     };
   }
 }
