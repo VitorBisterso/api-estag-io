@@ -193,12 +193,12 @@ export class AuthService {
       },
     );
 
-    if (!valid)
+    const { userType } = dto;
+    if (!valid || valid.userType !== userType)
       throw new BadRequestException(
         'Invalid refresh token',
       );
 
-    const { userType } = dto;
     let user;
     if (userType === 'USER') {
       user = await this.prisma.user.findUnique({
