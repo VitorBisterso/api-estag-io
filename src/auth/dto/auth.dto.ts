@@ -137,3 +137,10 @@ export class RefreshDto {
   @IsNotEmpty()
   userType: USER_TYPE;
 }
+
+export class AccessTokenResponse {
+  @ApiProperty({
+    description: 'The access token',
+  })
+  accessToken: string;
+}

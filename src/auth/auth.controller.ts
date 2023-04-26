@@ -19,6 +19,7 @@ import {
   AuthCompanyDto,
   SignInResponse,
   RefreshDto,
+  AccessTokenResponse,
 } from './dto';
 import { RefreshTokenGuard } from './guard';
 
@@ -31,7 +32,7 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'An access token',
-    type: String,
+    type: AccessTokenResponse,
   })
   @Post('signup/user')
   signupUser(@Body() dto: AuthUserDto) {
@@ -42,7 +43,7 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'An access token',
-    type: String,
+    type: AccessTokenResponse,
   })
   @Post('signup/company')
   signupCompany(@Body() dto: AuthCompanyDto) {
@@ -62,6 +63,15 @@ export class AuthController {
   }
 
   @UseGuards(RefreshTokenGuard)
+  @ApiOperation({
+    summary: 'Refresh your access token',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'A new access token',
+    type: AccessTokenResponse,
+  })
+  @HttpCode(HttpStatus.OK)
   @Post('refresh')
   refreshTokens(
     @Req() req: Request,
