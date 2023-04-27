@@ -11,12 +11,13 @@ import {
 } from 'src/consts';
 import { toNumber } from 'src/utils';
 
-export type DIRECTION_ORDER = 'ASC' | 'DESC';
+export type DIRECTION_ORDER = 'asc' | 'desc';
 
 export class Paginated<T> {
   @ApiProperty({
     description: 'The current page',
     default: FIRST_PAGE,
+    required: false,
   })
   @IsNumber()
   @IsOptional()
@@ -31,6 +32,7 @@ export class Paginated<T> {
   @ApiProperty({
     description: 'The page size',
     default: PAGE_SIZE,
+    required: false,
   })
   @IsNumber()
   @IsOptional()
@@ -45,17 +47,19 @@ export class Paginated<T> {
   @ApiProperty({
     description: 'The sort criteria',
     example: 'name',
+    required: false,
   })
   @IsString()
   @IsOptional()
-  sortBy?: keyof T;
+  orderBy?: keyof T;
 
   @ApiProperty({
-    description: 'The sort order',
-    example: 'ASC | DESC',
-    default: 'ASC',
+    description: 'The order direction',
+    example: 'asc | desc',
+    default: 'asc',
+    required: false,
   })
   @IsString()
   @IsOptional()
-  orderBy: DIRECTION_ORDER = 'ASC';
+  direction: DIRECTION_ORDER = 'asc';
 }

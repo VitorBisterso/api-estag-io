@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Query,
+  Response,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -16,6 +17,7 @@ import {
 } from './dto';
 import { OpportunitiesService } from './opportunities.service';
 import { GetUser } from 'src/auth/decorator';
+import { Response as Res } from 'express';
 
 @UseGuards(JwtGuard)
 @ApiTags('opportunities')
@@ -28,17 +30,28 @@ export class OpportunitiesController {
   @ApiOperation({ summary: 'Get opportunities' })
   @ApiOkResponse({
     description:
-      'Return all opportunies with pagination and the total in the content-range header',
+      'Return all opportunities with pagination and the total in the content-range header',
     type: Array<OpportunityDto>,
   })
   @Get()
   getOpportunitiesAsCompany(
     @Query() filter: OpportunityFilterDto,
     @GetUser() user: Record<string, any>,
+    @Response() res: Res,
   ) {
-    return this.opportunitiesService.getOpportunities(
-      filter,
-      user.cnpj ? 'COMPANY' : 'USER',
-    );
+    const isCompany = !!user.cnpj;
+    return this.opportunitiesService
+      .getOpportunities(
+        filter,
+        isCompany ? 'COMPANY' : 'USER',
+        !isCompany && user.id,
+      )
+      .then((opportunities) =>
+        res
+          .set({
+            'Content-Range': opportunities.length,
+          })
+          .json({ opportunities }),
+      );
   }
 }

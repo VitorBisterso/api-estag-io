@@ -80,6 +80,7 @@ export class OpportunityFilterDto extends Paginated<OpportunityDto> {
   @ApiProperty({
     description: 'The opportunity title',
     example: 'Vaga de estágio de desenvolvimento',
+    required: false,
   })
   @IsString()
   @IsOptional()
@@ -88,6 +89,7 @@ export class OpportunityFilterDto extends Paginated<OpportunityDto> {
   @ApiProperty({
     description: 'The opportunity type',
     example: 'REMOTE | LOCAL',
+    required: false,
   })
   @IsString()
   @IsOptional()
@@ -97,6 +99,7 @@ export class OpportunityFilterDto extends Paginated<OpportunityDto> {
     description:
       'The opportunity weekly workload',
     example: 30,
+    required: false,
   })
   @IsNumber()
   @IsOptional()
@@ -107,6 +110,7 @@ export class OpportunityFilterDto extends Paginated<OpportunityDto> {
     description:
       'Show only opportunities that I am registered to (only works for type "USER")',
     default: false,
+    required: false,
   })
   @IsBoolean()
   @IsOptional()

@@ -75,6 +75,7 @@ model Opportunity {
   salary         Decimal
   deadline       DateTime
   weeklyWorkload Int
+  isActive       Boolean
   type           OpportunityType
 
   companyId Int
