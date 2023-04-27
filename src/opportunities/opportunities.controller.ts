@@ -44,7 +44,7 @@ export class OpportunitiesController {
       .getOpportunities(
         filter,
         isCompany ? 'COMPANY' : 'USER',
-        !isCompany && user.id,
+        user.id,
       )
       .then((opportunities) =>
         res

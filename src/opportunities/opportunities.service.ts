@@ -10,7 +10,7 @@ export class OpportunitiesService {
   async getOpportunities(
     filter: OpportunityFilterDto,
     userType: USER_TYPE,
-    userId?: number,
+    userId: number,
   ) {
     const {
       page,
@@ -23,44 +23,53 @@ export class OpportunitiesService {
       registeredOnly,
     } = filter;
 
+    let filters: Record<any, any> = {
+      title: {
+        contains: title,
+      },
+      type: {
+        equals: type,
+      },
+      weeklyWorkload: {
+        equals: weeklyWorkload,
+      },
+    };
+
+    if (userType === 'COMPANY') {
+      filters = {
+        ...filters,
+        companyId: { equals: userId },
+      };
+    }
+
     const opportunities =
       await this.prisma.opportunity.findMany({
         skip: (page - 1) * size,
         take: size,
-        where: {
-          title: {
-            contains: title,
-          },
-          type: {
-            equals: type,
-          },
-          weeklyWorkload: {
-            equals: weeklyWorkload,
-          },
-        },
+        where: filters,
         orderBy: {
-          [orderBy]: direction,
+          [orderBy || 'title']: direction,
         },
         include: {
           applicants: true,
         },
       });
 
-    if (
-      userType === 'USER' &&
-      registeredOnly &&
-      userId
-    ) {
-      const onlyRegisteredOpportunities =
-        opportunities.filter((opportunity) =>
-          opportunity.applicants.some(
-            (applicant) =>
-              applicant.userId === userId,
-          ),
-        );
+    if (userType === 'USER') {
+      let filteredOpportunities = opportunities;
+
+      if (registeredOnly) {
+        filteredOpportunities =
+          opportunities.filter((opportunity) =>
+            opportunity.applicants.some(
+              (applicant) =>
+                applicant.userId === userId,
+            ),
+          );
+      }
 
       const withoutUnauthorizedFields =
-        onlyRegisteredOpportunities.map(
+        filteredOpportunities.map(
           (opportunity) => {
             delete opportunity.isActive;
             delete opportunity.applicants;

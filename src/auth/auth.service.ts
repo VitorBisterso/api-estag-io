@@ -31,7 +31,7 @@ export class AuthService {
     const { email, name, password, birthday } =
       dto;
 
-    if (password.length <= PASSWORD_SIZE)
+    if (password.length < PASSWORD_SIZE)
       throw new BadRequestException(
         `Password must have at least ${PASSWORD_SIZE} characters`,
       );
@@ -74,7 +74,7 @@ export class AuthService {
     const { cnpj, email, name, password, phone } =
       dto;
 
-    if (password.length <= PASSWORD_SIZE)
+    if (password.length < PASSWORD_SIZE)
       throw new BadRequestException(
         `Password must have at least ${PASSWORD_SIZE}`,
       );
