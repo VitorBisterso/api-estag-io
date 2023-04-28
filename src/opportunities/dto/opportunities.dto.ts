@@ -116,4 +116,15 @@ export class OpportunityFilterDto extends Paginated<OpportunityDto> {
   @IsOptional()
   @Transform(({ value }) => toBoolean(value))
   registeredOnly = false;
+
+  @ApiProperty({
+    description:
+      'If the opportunity is visible to students',
+    default: true,
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  @Transform(({ value }) => toBoolean(value))
+  isActive = true;
 }

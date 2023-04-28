@@ -1,7 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadGatewayException,
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { USER_TYPE } from 'src/auth/dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { OpportunityFilterDto } from './dto';
+import {
+  OpportunityDto,
+  OpportunityFilterDto,
+} from './dto';
+import {
+  isTypeValid,
+  isUserACompany,
+} from './helpers';
 
 @Injectable()
 export class OpportunitiesService {
@@ -21,6 +33,7 @@ export class OpportunitiesService {
       type,
       weeklyWorkload,
       registeredOnly,
+      isActive,
     } = filter;
 
     let filters: Record<any, any> = {
@@ -32,6 +45,9 @@ export class OpportunitiesService {
       },
       weeklyWorkload: {
         equals: weeklyWorkload,
+      },
+      isActive: {
+        equals: isActive,
       },
     };
 
@@ -80,5 +96,49 @@ export class OpportunitiesService {
     }
 
     return opportunities;
+  }
+
+  async createOpportunity(
+    opportunity: OpportunityDto,
+    user: Record<string, any>,
+  ) {
+    if (!isUserACompany(user))
+      throw new ForbiddenException(
+        'You cannot perform this operation',
+      );
+
+    if (!isTypeValid(opportunity.type))
+      throw new BadRequestException(
+        'Opportunity type must be either "LOCAL" or "REMOTE"',
+      );
+
+    if (opportunity.weeklyWorkload <= 0)
+      throw new BadGatewayException(
+        'Weekly workload must be a positive number',
+      );
+
+    if (Number(opportunity.salary) <= 0)
+      throw new BadGatewayException(
+        'Salary must be a positive number',
+      );
+
+    const deadline = new Date(
+      opportunity.deadline,
+    );
+    if (deadline.getTime() < new Date().getTime())
+      throw new BadRequestException(
+        'A deadline must be a date in the future',
+      );
+
+    const createdOpportunity =
+      await this.prisma.opportunity.create({
+        data: {
+          ...opportunity,
+          deadline,
+          companyId: user.id,
+        },
+      });
+
+    return createdOpportunity;
   }
 }

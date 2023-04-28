@@ -1,11 +1,14 @@
 import {
+  Body,
   Controller,
   Get,
+  Post,
   Query,
   Response,
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -18,6 +21,7 @@ import {
 import { OpportunitiesService } from './opportunities.service';
 import { GetUser } from 'src/auth/decorator';
 import { Response as Res } from 'express';
+import { isUserACompany } from './helpers';
 
 @UseGuards(JwtGuard)
 @ApiTags('opportunities')
@@ -34,12 +38,12 @@ export class OpportunitiesController {
     type: Array<OpportunityDto>,
   })
   @Get()
-  getOpportunitiesAsCompany(
+  getOpportunities(
     @Query() filter: OpportunityFilterDto,
     @GetUser() user: Record<string, any>,
     @Response() res: Res,
   ) {
-    const isCompany = !!user.cnpj;
+    const isCompany = isUserACompany(user);
     return this.opportunitiesService
       .getOpportunities(
         filter,
@@ -53,5 +57,22 @@ export class OpportunitiesController {
           })
           .json({ opportunities }),
       );
+  }
+
+  @ApiOperation({
+    summary: 'Create an opportunity',
+  })
+  @ApiCreatedResponse({
+    description: 'Create an opportunity',
+  })
+  @Post()
+  createOpportunity(
+    @Body() opportunity: OpportunityDto,
+    @GetUser() user: Record<string, any>,
+  ) {
+    return this.opportunitiesService.createOpportunity(
+      opportunity,
+      user,
+    );
   }
 }
