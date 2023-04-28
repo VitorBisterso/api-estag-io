@@ -18,6 +18,7 @@ import {
   RefreshDto,
 } from './dto';
 import { PASSWORD_SIZE } from 'src/consts';
+import { isCNPJValid } from './helpers';
 
 @Injectable()
 export class AuthService {
@@ -77,6 +78,11 @@ export class AuthService {
     if (password.length < PASSWORD_SIZE)
       throw new BadRequestException(
         `Password must have at least ${PASSWORD_SIZE}`,
+      );
+
+    if (!isCNPJValid(cnpj))
+      throw new BadRequestException(
+        'Invalid CNPJ',
       );
 
     const hash = await argon.hash(password);

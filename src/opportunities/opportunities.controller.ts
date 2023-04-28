@@ -2,15 +2,15 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Post,
   Query,
   Response,
   UseGuards,
 } from '@nestjs/common';
 import {
-  ApiCreatedResponse,
-  ApiOkResponse,
   ApiOperation,
+  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtGuard } from 'src/auth/guard';
@@ -32,10 +32,12 @@ export class OpportunitiesController {
   ) {}
 
   @ApiOperation({ summary: 'Get opportunities' })
-  @ApiOkResponse({
+  @ApiResponse({
+    status: HttpStatus.OK,
     description:
       'Return all opportunities with pagination and the total in the content-range header',
-    type: Array<OpportunityDto>,
+    type: OpportunityDto,
+    isArray: true,
   })
   @Get()
   getOpportunities(
@@ -62,8 +64,10 @@ export class OpportunitiesController {
   @ApiOperation({
     summary: 'Create an opportunity',
   })
-  @ApiCreatedResponse({
+  @ApiResponse({
+    status: HttpStatus.CREATED,
     description: 'Create an opportunity',
+    type: OpportunityDto,
   })
   @Post()
   createOpportunity(
