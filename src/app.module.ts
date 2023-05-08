@@ -3,10 +3,37 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { OpportunitiesModule } from './opportunities/opportunities.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { MailingModule } from './mailing/mailing.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    MailingModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MailerModule.forRoot({
+      transport:
+        'smtps://user@domain.com:pass@smtp.domain.com',
+      template: {
+        dir: process.cwd() + '/templates',
+        adapter: new HandlebarsAdapter(
+          /* helpers */ undefined,
+          {
+            inlineCssEnabled: true,
+            /** See https://www.npmjs.com/package/inline-css#api */
+            inlineCssOptions: {
+              url: ' ',
+              preserveMediaQueries: true,
+            },
+          },
+        ),
+        options: {
+          strict: true,
+        },
+      },
+    }),
     AuthModule,
     PrismaModule,
     OpportunitiesModule,
