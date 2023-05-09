@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { google } from 'googleapis';
 import { Options } from 'nodemailer/lib/smtp-transport';
+import { MailDto } from './dto';
 
 @Injectable()
 export class MailingService {
@@ -57,25 +58,30 @@ export class MailingService {
     );
   }
 
-  public async sendMail() {
+  public async sendMail(emailInfo: MailDto) {
     await this.setTransport();
-    this.mailerService
+
+    const { to, subject, template, context } =
+      emailInfo;
+
+    const success = await this.mailerService
       .sendMail({
         transporterName: 'gmail',
-        to: 'vitor.bisterso@aluno.ifsp.edu.br', // list of receivers
+        to, // list of receivers
         from: 'noreply@nestjs.com', // sender address
-        subject: 'Verification Code', // Subject line
-        template: 'action',
-        context: {
-          // Data to be sent to template engine..
-          code: '38320',
-        },
+        subject,
+        template,
+        context,
       })
       .then((success) => {
         console.log(success);
+        return true;
       })
       .catch((err) => {
         console.log(err);
+        return false;
       });
+
+    return success;
   }
 }
