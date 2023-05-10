@@ -3,12 +3,16 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Param,
+  ParseIntPipe,
   Post,
+  Put,
   Query,
   Response,
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBody,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -62,11 +66,33 @@ export class OpportunitiesController {
   }
 
   @ApiOperation({
+    summary: 'Get opportunity by id',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Return an opportunity by id',
+    type: OpportunityDto,
+  })
+  @Get(':id')
+  getOpportunityById(
+    @Param('id', ParseIntPipe)
+    opportunityId: number,
+    @GetUser() user: Record<string, any>,
+  ) {
+    const isCompany = isUserACompany(user);
+    return this.opportunitiesService.getOpportunityById(
+      opportunityId,
+      isCompany ? 'COMPANY' : 'USER',
+      user.id,
+    );
+  }
+
+  @ApiOperation({
     summary: 'Create an opportunity',
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Create an opportunity',
+    description: 'Created opportunity',
     type: OpportunityDto,
   })
   @Post()
@@ -75,6 +101,34 @@ export class OpportunitiesController {
     @GetUser() user: Record<string, any>,
   ) {
     return this.opportunitiesService.createOpportunity(
+      opportunity,
+      user,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Update an opportunity',
+  })
+  @ApiBody({
+    description:
+      'The opportunity data to update (all properties are optional)',
+    type: OpportunityDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description:
+      'Opportunity updated successfully',
+    type: OpportunityDto,
+  })
+  @Put(':id')
+  updateOpportunity(
+    @Param('id', ParseIntPipe)
+    opportunityId: number,
+    @Body() opportunity: Partial<OpportunityDto>,
+    @GetUser() user: Record<string, any>,
+  ) {
+    return this.opportunitiesService.updateOpportunity(
+      opportunityId,
       opportunity,
       user,
     );

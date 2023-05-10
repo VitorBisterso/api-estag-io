@@ -3,6 +3,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { USER_TYPE } from 'src/auth/dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -11,9 +12,11 @@ import {
   OpportunityFilterDto,
 } from './dto';
 import {
+  isDeadlineValid,
   isTypeValid,
   isUserACompany,
 } from './helpers';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class OpportunitiesService {
@@ -98,6 +101,37 @@ export class OpportunitiesService {
     return opportunities;
   }
 
+  async getOpportunityById(
+    opportunityId: number,
+    userType: USER_TYPE,
+    userId: number,
+  ) {
+    const opportunity =
+      await this.prisma.opportunity.findUnique({
+        where: {
+          id: opportunityId,
+        },
+        include: {
+          applicants: userType === 'COMPANY',
+        },
+      });
+
+    if (!opportunity)
+      throw new NotFoundException(
+        `Opportunity with id ${opportunityId} not found`,
+      );
+
+    if (
+      userType === 'COMPANY' &&
+      opportunity.companyId !== userId
+    )
+      throw new ForbiddenException(
+        'You can only visualize your own opportunities',
+      );
+
+    return opportunity;
+  }
+
   async createOpportunity(
     opportunity: OpportunityDto,
     user: Record<string, any>,
@@ -122,10 +156,7 @@ export class OpportunitiesService {
         'Salary must be a positive number',
       );
 
-    const deadline = new Date(
-      opportunity.deadline,
-    );
-    if (deadline.getTime() < new Date().getTime())
+    if (!isDeadlineValid(opportunity.deadline))
       throw new BadRequestException(
         'A deadline must be a date in the future',
       );
@@ -134,11 +165,56 @@ export class OpportunitiesService {
       await this.prisma.opportunity.create({
         data: {
           ...opportunity,
-          deadline,
+          deadline: new Date(
+            opportunity.deadline,
+          ),
           companyId: user.id,
         },
       });
 
     return createdOpportunity;
+  }
+
+  async updateOpportunity(
+    id: number,
+    opportunity: Partial<OpportunityDto>,
+    user: Record<string, any>,
+  ) {
+    const isCompany = isUserACompany(user);
+
+    if (!isCompany)
+      throw new ForbiddenException(
+        'Only companies can edit an opportunity',
+      );
+
+    try {
+      await this.prisma.opportunity.findUniqueOrThrow(
+        {
+          where: {
+            id,
+          },
+        },
+      );
+    } catch (error) {
+      if (
+        error instanceof
+        Prisma.PrismaClientKnownRequestError
+      ) {
+        console.log('err', error);
+        if (error.code === 'P2025') {
+          throw new NotFoundException(
+            `Opportunity with id ${id} not found`,
+          );
+        }
+      }
+      throw error;
+    }
+
+    return this.prisma.opportunity.update({
+      where: {
+        id,
+      },
+      data: opportunity,
+    });
   }
 }

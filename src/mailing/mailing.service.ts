@@ -64,24 +64,13 @@ export class MailingService {
     const { to, subject, template, context } =
       emailInfo;
 
-    const success = await this.mailerService
-      .sendMail({
-        transporterName: 'gmail',
-        to, // list of receivers
-        from: 'noreply@nestjs.com', // sender address
-        subject,
-        template,
-        context,
-      })
-      .then((success) => {
-        console.log(success);
-        return true;
-      })
-      .catch((err) => {
-        console.log(err);
-        return false;
-      });
-
-    return success;
+    return this.mailerService.sendMail({
+      transporterName: 'gmail',
+      to, // list of receivers
+      from: 'noreply@nestjs.com', // sender address
+      subject,
+      template,
+      context,
+    });
   }
 }

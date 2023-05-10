@@ -128,3 +128,67 @@ export class OpportunityFilterDto extends Paginated<OpportunityDto> {
   @Transform(({ value }) => toBoolean(value))
   isActive = true;
 }
+
+// export class ProccessStepDto {
+//   @ApiProperty({
+//     description: 'The proccess step title',
+//     example: 'Entrevista com o RH',
+//   })
+//   @IsString()
+//   @IsNotEmpty()
+//   title: string;
+
+//   @ApiProperty({
+//     description: 'The proccess step description',
+//     example: 'Nesta etapa, o candidato...',
+//   })
+//   @IsString()
+//   @IsNotEmpty()
+//   description: string;
+
+//   @ApiProperty({
+//     example: '2024-01-01',
+//     description: 'The process step deadline',
+//   })
+//   @IsDateString()
+//   @IsNotEmpty()
+//   deadline: string;
+
+//   @ApiProperty({
+//     description:
+//       'If the proccess step is actually on the deadline and NOT until then',
+//   })
+//   @IsBoolean()
+//   @IsNotEmpty()
+//   @Transform(({ value }) => toBoolean(value))
+//   onlyOnDeadline: boolean;
+
+//   @ApiProperty({
+//     description:
+//       'The applicants ids that will take part on this proccess step',
+//     isArray: true,
+//     type: Array<number>,
+//     example: [1, 2, 3],
+//   })
+//   @IsArray()
+//   @IsNotEmpty()
+//   @Transform(({ value: applicants }) =>
+//     applicants.map((applicantId: string) =>
+//       toNumber(applicantId),
+//     ),
+//   )
+//   applicants: Array<number>;
+// }
+
+// export class UpdateOpportunityDto extends autoImplement<
+//   Optional<OpportunityDto>
+// >() {
+//   @ApiProperty({
+//     description: 'The opportunity process steps',
+//     isArray: true,
+//     type: Array<ProccessStepDto>,
+//   })
+//   @IsArray()
+//   @IsNotEmpty()
+//   processSteps: Array<ProccessStepDto>;
+// }

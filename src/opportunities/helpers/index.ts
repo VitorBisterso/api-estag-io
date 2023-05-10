@@ -11,3 +11,12 @@ export function isTypeValid(
 ) {
   return type === 'LOCAL' || type === 'REMOTE';
 }
+
+export function isDeadlineValid(
+  deadline: string,
+) {
+  const deadlineDate = new Date(deadline);
+  return (
+    deadlineDate.getTime() > new Date().getTime()
+  );
+}

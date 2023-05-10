@@ -35,15 +35,15 @@ export class MailingController {
       process.env.SHOULD_SEND_EMAIL.toUpperCase() ===
       'FALSE'
     )
-      return;
+      return res.sendStatus(HttpStatus.CONTINUE);
 
-    const success =
-      await this.mailingService.sendMail(
-        emailInfo,
+    return this.mailingService
+      .sendMail(emailInfo)
+      .then(() => res.sendStatus(HttpStatus.OK))
+      .catch(() =>
+        res.sendStatus(
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        ),
       );
-    if (success) res.statusCode = HttpStatus.OK;
-    else
-      res.statusCode =
-        HttpStatus.UNPROCESSABLE_ENTITY;
   }
 }
