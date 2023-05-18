@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -148,5 +149,27 @@ export class OpportunitiesController {
       opportunityId,
       user,
     );
+  }
+
+  @ApiOperation({
+    summary:
+      'Apply for an opportunity as a student',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Applied successfully',
+  })
+  @Patch('apply/:id')
+  applyForOpportunity(
+    @Param('id', ParseIntPipe)
+    opportunityId: number,
+    @GetUser() user: Record<string, any>,
+    @Response() res: Res,
+  ) {
+    return this.opportunitiesService
+      .applyForOpportunity(opportunityId, user)
+      .then(() =>
+        res.sendStatus(HttpStatus.NO_CONTENT),
+      );
   }
 }

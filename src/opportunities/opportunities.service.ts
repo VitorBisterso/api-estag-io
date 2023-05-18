@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { USER_TYPE } from 'src/auth/dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -92,6 +93,7 @@ export class OpportunitiesService {
           (opportunity) => {
             delete opportunity.isActive;
             delete opportunity.applicants;
+            return opportunity;
           },
         );
 
@@ -256,6 +258,50 @@ export class OpportunitiesService {
     return this.prisma.opportunity.delete({
       where: {
         id,
+      },
+    });
+  }
+
+  async applyForOpportunity(
+    opportunityId: number,
+    user: Record<any, any>,
+  ) {
+    const isCompany = isUserACompany(user);
+
+    if (isCompany)
+      throw new ForbiddenException(
+        'Only students can apply for an opportunity',
+      );
+
+    const opportunity =
+      await this.prisma.opportunity.findUnique({
+        where: {
+          id: opportunityId,
+        },
+        include: {
+          applicants: true,
+        },
+      });
+
+    if (!opportunity)
+      throw new NotFoundException(
+        `Opportunity with id ${opportunityId} not found`,
+      );
+
+    const hasApplied =
+      opportunity.applicants.some(
+        (applicant) =>
+          applicant.userId === user.id,
+      );
+    if (hasApplied)
+      throw new UnprocessableEntityException(
+        'You have already applied for this opportunity',
+      );
+
+    return this.prisma.opportunityUser.create({
+      data: {
+        userId: user.id,
+        opportunityId: opportunity.id,
       },
     });
   }
