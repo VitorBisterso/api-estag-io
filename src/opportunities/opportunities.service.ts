@@ -113,6 +113,7 @@ export class OpportunitiesService {
         },
         include: {
           applicants: userType === 'COMPANY',
+          processSteps: true,
         },
       });
 
@@ -226,7 +227,7 @@ export class OpportunitiesService {
 
     if (!isCompany)
       throw new ForbiddenException(
-        'Only companies can edit an opportunity',
+        'Only companies can delete an opportunity',
       );
 
     try {

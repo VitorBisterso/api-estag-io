@@ -6,6 +6,7 @@ import { OpportunitiesModule } from './opportunities/opportunities.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailingModule } from './mailing/mailing.module';
+import { ProcessStepsModule } from './process-steps/process-steps.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { MailingModule } from './mailing/mailing.module';
     AuthModule,
     PrismaModule,
     OpportunitiesModule,
+    ProcessStepsModule,
   ],
 })
 export class AppModule {}

@@ -24,7 +24,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('auth')
     .addTag('opportunities')
-    .addTag('processSteps')
+    .addTag('process-steps')
     .addTag('internships')
     .addTag('reviews')
     .addBearerAuth()
