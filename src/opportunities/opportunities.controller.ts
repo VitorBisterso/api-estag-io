@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
@@ -130,6 +131,21 @@ export class OpportunitiesController {
     return this.opportunitiesService.updateOpportunity(
       opportunityId,
       opportunity,
+      user,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Delete an opportunity',
+  })
+  @Delete(':id')
+  deleteOpportunity(
+    @Param('id', ParseIntPipe)
+    opportunityId: number,
+    @GetUser() user: Record<string, any>,
+  ) {
+    return this.opportunitiesService.deleteOpportunity(
+      opportunityId,
       user,
     );
   }

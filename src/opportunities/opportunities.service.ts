@@ -217,4 +217,45 @@ export class OpportunitiesService {
       data: opportunity,
     });
   }
+
+  async deleteOpportunity(
+    id: number,
+    user: Record<string, any>,
+  ) {
+    const isCompany = isUserACompany(user);
+
+    if (!isCompany)
+      throw new ForbiddenException(
+        'Only companies can edit an opportunity',
+      );
+
+    try {
+      await this.prisma.opportunity.findUniqueOrThrow(
+        {
+          where: {
+            id,
+          },
+        },
+      );
+    } catch (error) {
+      if (
+        error instanceof
+        Prisma.PrismaClientKnownRequestError
+      ) {
+        console.log('err', error);
+        if (error.code === 'P2025') {
+          throw new NotFoundException(
+            `Opportunity with id ${id} not found`,
+          );
+        }
+      }
+      throw error;
+    }
+
+    return this.prisma.opportunity.delete({
+      where: {
+        id,
+      },
+    });
+  }
 }
