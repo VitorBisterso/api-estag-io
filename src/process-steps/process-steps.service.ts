@@ -135,4 +135,34 @@ export class ProcessStepsService {
       data: steps,
     });
   }
+
+  async deleteProcessStep(
+    processStepId: number,
+    user: Record<any, any>,
+  ) {
+    const isCompany = isUserACompany(user);
+
+    if (!isCompany)
+      throw new ForbiddenException(
+        'Only companies can delete process steps',
+      );
+
+    const processStep =
+      await this.prisma.processStep.findUnique({
+        where: {
+          id: processStepId,
+        },
+      });
+
+    if (!processStep)
+      throw new NotFoundException(
+        `Process step with id ${processStepId} not found`,
+      );
+
+    return this.prisma.processStep.delete({
+      where: {
+        id: processStepId,
+      },
+    });
+  }
 }

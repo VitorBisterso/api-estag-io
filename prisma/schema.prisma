@@ -124,7 +124,7 @@ model ProcessStepUser {
   user   User @relation(fields: [userId], references: [id])
 
   processStepId Int
-  ProcessStep   ProcessStep @relation(fields: [processStepId], references: [id])
+  ProcessStep   ProcessStep @relation(fields: [processStepId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@id([userId, processStepId])
 }

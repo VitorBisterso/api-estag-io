@@ -1,18 +1,21 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
   ParseIntPipe,
   Post,
   UseGuards,
+  Response,
 } from '@nestjs/common';
 import {
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Response as Res } from 'express';
 import { JwtGuard } from 'src/auth/guard';
 import { ProcessStepsService } from './process-steps.service';
 import {
@@ -74,5 +77,27 @@ export class ProcessStepsController {
       processSteps,
       user,
     );
+  }
+
+  @ApiOperation({
+    summary: 'Delete a process steps',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description:
+      'Process step deleted successfully',
+  })
+  @Delete(':id')
+  deleteProcessStep(
+    @Param('id', ParseIntPipe)
+    processStepId: number,
+    @GetUser() user: Record<string, any>,
+    @Response() res: Res,
+  ) {
+    return this.processStepsService
+      .deleteProcessStep(processStepId, user)
+      .then(() =>
+        res.sendStatus(HttpStatus.NO_CONTENT),
+      );
   }
 }
