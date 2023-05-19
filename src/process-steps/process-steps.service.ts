@@ -7,7 +7,11 @@ import {
 import { Prisma, User } from '@prisma/client';
 import { isUserACompany } from 'src/opportunities/helpers';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateProcessStepDto } from './dto';
+import {
+  CreateProcessStepDto,
+  UpdateProcessStepDto,
+} from './dto';
+import { isDeadlineValid } from 'src/opportunities/helpers';
 
 @Injectable()
 export class ProcessStepsService {
@@ -120,6 +124,13 @@ export class ProcessStepsService {
           );
         }
 
+        if (
+          !isDeadlineValid(processStep.deadline)
+        )
+          throw new UnprocessableEntityException(
+            'A deadline must be a date in the future',
+          );
+
         return {
           ...processStep,
           opportunityId,
@@ -134,6 +145,94 @@ export class ProcessStepsService {
     await this.prisma.processStep.createMany({
       data: steps,
     });
+  }
+
+  async updateProcessSteps(
+    opportunityId: number,
+    processSteps: Array<UpdateProcessStepDto>,
+    user: Record<string, any>,
+  ) {
+    if (
+      !processSteps ||
+      !Array.isArray(processSteps) ||
+      processSteps.length <= 0
+    )
+      throw new UnprocessableEntityException(
+        'You have to submit some steps to update them',
+      );
+
+    const isCompany = isUserACompany(user);
+
+    if (!isCompany)
+      throw new ForbiddenException(
+        'Only companies can update process steps',
+      );
+
+    const opportunity =
+      await this.prisma.opportunity.findUnique({
+        where: {
+          id: opportunityId,
+        },
+      });
+
+    if (!opportunity)
+      throw new NotFoundException(
+        `Opportunity with id ${opportunityId} not found`,
+      );
+
+    const steps = await Promise.all(
+      processSteps.map(async (processStep) => {
+        const { id } = processStep;
+
+        if (!id)
+          throw new UnprocessableEntityException(
+            'You must pass the steps ids',
+          );
+
+        const step =
+          await this.prisma.processStep.findUnique(
+            {
+              where: {
+                id,
+              },
+            },
+          );
+
+        if (!step)
+          throw new NotFoundException(
+            `Step with id ${id} not found`,
+          );
+
+        if (
+          processStep.deadline &&
+          !isDeadlineValid(processStep.deadline)
+        )
+          throw new UnprocessableEntityException(
+            'A deadline must be a date in the future',
+          );
+
+        delete step.opportunityId;
+        const newDeadline = processStep.deadline
+          ? new Date(processStep.deadline)
+          : step.deadline;
+
+        return {
+          ...processStep,
+          deadline: newDeadline,
+        };
+      }),
+    );
+
+    const operations = steps.map((step) =>
+      this.prisma.processStep.update({
+        where: {
+          id: step.id,
+        },
+        data: step,
+      }),
+    );
+
+    return this.prisma.$transaction(operations);
   }
 
   async deleteProcessStep(

@@ -9,8 +9,10 @@ import {
   Post,
   UseGuards,
   Response,
+  Put,
 } from '@nestjs/common';
 import {
+  ApiBody,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -21,6 +23,7 @@ import { ProcessStepsService } from './process-steps.service';
 import {
   CreateProcessStepDto,
   GetProcessStepsDto,
+  UpdateProcessStepDto,
 } from './dto';
 import { GetUser } from 'src/auth/decorator';
 
@@ -73,6 +76,37 @@ export class ProcessStepsController {
     @GetUser() user: Record<string, any>,
   ) {
     return this.processStepsService.createProcessStep(
+      opportunityId,
+      processSteps,
+      user,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Update a process step',
+  })
+  @ApiBody({
+    description:
+      'The process step data to update (all properties are optional)',
+    type: UpdateProcessStepDto,
+    isArray: true,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description:
+      'Process step updated successfully',
+    type: UpdateProcessStepDto,
+    isArray: true,
+  })
+  @Put('opportunity/:id')
+  updateOpportunity(
+    @Param('id', ParseIntPipe)
+    opportunityId: number,
+    @Body()
+    processSteps: Array<UpdateProcessStepDto>,
+    @GetUser() user: Record<string, any>,
+  ) {
+    return this.processStepsService.updateProcessSteps(
       opportunityId,
       processSteps,
       user,
