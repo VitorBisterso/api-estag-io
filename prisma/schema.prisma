@@ -46,7 +46,7 @@ model User {
   reviews       Review[]
   opportunities OpportunityUser[]
   processSteps  ProcessStep[]
-  internship    Internship?       @relation("student_internship")
+  internship    Internship?
 }
 
 model Company {
@@ -84,7 +84,7 @@ model Opportunity {
   applicants OpportunityUser[]
 
   processSteps ProcessStep[]
-  job          Internship?
+  jobs         Internship[]
 }
 
 model OpportunityUser {
@@ -139,11 +139,10 @@ model Internship {
   initialDate DateTime
   until       DateTime
   managerName String
-  isApproved  Boolean
 
   studentId Int  @unique
-  student   User @relation("student_internship", fields: [studentId], references: [id])
+  student   User @relation(fields: [studentId], references: [id])
 
-  jobId Int         @unique
+  jobId Int
   job   Opportunity @relation(fields: [jobId], references: [id])
 }
