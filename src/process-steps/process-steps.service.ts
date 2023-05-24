@@ -182,7 +182,11 @@ export class ProcessStepsService {
 
     const steps = await Promise.all(
       processSteps.map(async (processStep) => {
-        const { id } = processStep;
+        const {
+          id,
+          newApplicants,
+          removedApplicants,
+        } = processStep;
 
         if (!id)
           throw new UnprocessableEntityException(
@@ -194,6 +198,9 @@ export class ProcessStepsService {
             {
               where: {
                 id,
+              },
+              include: {
+                applicants: true,
               },
             },
           );
@@ -216,8 +223,52 @@ export class ProcessStepsService {
           ? new Date(processStep.deadline)
           : step.deadline;
 
+        if (removedApplicants) {
+          removedApplicants.forEach(
+            (applicantId) => {
+              const applicantIndex =
+                step.applicants.findIndex(
+                  (applicant) =>
+                    applicant.id === applicantId,
+                );
+              step.applicants.splice(
+                applicantIndex,
+                1,
+              );
+            },
+          );
+        }
+
+        if (newApplicants) {
+          await Promise.all(
+            newApplicants.map(
+              async (applicantId) => {
+                const user =
+                  await this.prisma.user.findUnique(
+                    {
+                      where: {
+                        id: applicantId,
+                      },
+                    },
+                  );
+
+                if (!user)
+                  throw new NotFoundException(
+                    `User with id ${applicantId} not found`,
+                  );
+
+                step.applicants.push(user);
+              },
+            ),
+          );
+        }
+
+        delete processStep.removedApplicants;
+        delete processStep.newApplicants;
+
         return {
           ...processStep,
+          applicants: step.applicants,
           deadline: newDeadline,
         };
       }),
@@ -228,7 +279,16 @@ export class ProcessStepsService {
         where: {
           id: step.id,
         },
-        data: step,
+        data: {
+          ...step,
+          applicants: {
+            set: step.applicants.map(
+              (applicant) => ({
+                id: applicant.id,
+              }),
+            ),
+          },
+        },
       }),
     );
 

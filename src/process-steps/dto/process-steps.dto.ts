@@ -136,4 +136,20 @@ export class UpdateProcessStepDto {
   @IsBoolean()
   @IsOptional()
   onlyOnDeadline: boolean;
+
+  @ApiProperty({
+    description: 'The added applicants ids',
+    isArray: true,
+  })
+  @IsArray()
+  @IsOptional()
+  newApplicants?: Array<number>;
+
+  @ApiProperty({
+    description: 'The removed applicants ids',
+    isArray: true,
+  })
+  @IsArray()
+  @IsOptional()
+  removedApplicants?: Array<number>;
 }

@@ -45,7 +45,7 @@ model User {
 
   reviews       Review[]
   opportunities OpportunityUser[]
-  processSteps  ProcessStepUser[]
+  processSteps  ProcessStep[]
   internship    Internship?       @relation("student_internship")
 }
 
@@ -113,20 +113,7 @@ model ProcessStep {
   opportunityId Int
   opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
 
-  applicants ProcessStepUser[]
-}
-
-model ProcessStepUser {
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
-
-  processStepId Int
-  ProcessStep   ProcessStep @relation(fields: [processStepId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-
-  @@id([userId, processStepId])
+  applicants User[]
 }
 
 model Review {
