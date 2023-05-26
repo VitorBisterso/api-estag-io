@@ -9,6 +9,7 @@ import { MailingModule } from './mailing/mailing.module';
 import { ProcessStepsModule } from './process-steps/process-steps.module';
 import { InternshipsModule } from './internships/internships.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { CompaniesModule } from './companies/companies.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { ReviewsModule } from './reviews/reviews.module';
     ProcessStepsModule,
     InternshipsModule,
     ReviewsModule,
+    CompaniesModule,
   ],
 })
 export class AppModule {}
