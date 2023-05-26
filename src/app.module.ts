@@ -8,6 +8,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { MailingModule } from './mailing/mailing.module';
 import { ProcessStepsModule } from './process-steps/process-steps.module';
 import { InternshipsModule } from './internships/internships.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { InternshipsModule } from './internships/internships.module';
     OpportunitiesModule,
     ProcessStepsModule,
     InternshipsModule,
+    ReviewsModule,
   ],
 })
 export class AppModule {}
