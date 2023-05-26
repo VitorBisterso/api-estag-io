@@ -1,11 +1,13 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   Response,
   UseGuards,
@@ -23,6 +25,7 @@ import {
   CreateInternshipDto,
   InternshipDto,
   InternshipFilterDto,
+  UpdateInternshipDto,
 } from './dto';
 
 @UseGuards(JwtGuard)
@@ -95,5 +98,48 @@ export class InternshipsController {
       internship,
       user,
     );
+  }
+
+  @ApiOperation({
+    summary: 'Update an internship',
+  })
+  @ApiResponse({
+    description: 'Updated internship',
+    type: InternshipDto,
+  })
+  @Put(':id')
+  updateInternship(
+    @Param('id', ParseIntPipe)
+    internshipId: number,
+    @Body()
+    internship: Partial<UpdateInternshipDto>,
+    @GetUser() user: Record<string, any>,
+  ) {
+    return this.internshipsService.updateInternship(
+      internshipId,
+      internship,
+      user,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Delete an internship',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Delete successfully',
+  })
+  @Delete(':id')
+  deleteInternship(
+    @Param('id', ParseIntPipe)
+    internshipId: number,
+    @GetUser() user: Record<string, any>,
+    @Response() res: Res,
+  ) {
+    return this.internshipsService
+      .deleteInternship(internshipId, user)
+      .then(() =>
+        res.sendStatus(HttpStatus.NO_CONTENT),
+      );
   }
 }

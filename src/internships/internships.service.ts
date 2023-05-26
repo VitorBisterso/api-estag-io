@@ -9,12 +9,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import {
   CreateInternshipDto,
   InternshipFilterDto,
+  UpdateInternshipDto,
 } from './dto';
 import {
   isDeadlineValid,
   isUserACompany,
 } from 'src/opportunities/helpers';
 import { areInternshipsDatesValid } from './helpers';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class InternshipsService {
@@ -183,7 +185,7 @@ export class InternshipsService {
       );
 
     const isStudentApplied =
-      !opportunity.applicants.some(
+      opportunity.applicants.some(
         (applicant) =>
           applicant.userId === student.id,
       );
@@ -207,5 +209,134 @@ export class InternshipsService {
       });
 
     return createdInternship;
+  }
+
+  async updateInternship(
+    internshipId: number,
+    internship: Partial<UpdateInternshipDto>,
+    user: Record<string, any>,
+  ) {
+    const existentInternship =
+      await this.prisma.internship.findUnique({
+        where: {
+          id: internshipId,
+        },
+      });
+
+    if (!existentInternship)
+      throw new BadRequestException(
+        `Internship with id ${internshipId} not found`,
+      );
+
+    if (!isUserACompany(user))
+      throw new ForbiddenException(
+        'You cannot perform this operation',
+      );
+
+    if (
+      internship.until &&
+      !isDeadlineValid(internship.until)
+    )
+      throw new BadRequestException(
+        'The until date must be a date in the future',
+      );
+
+    if (
+      !areInternshipsDatesValid(
+        internship.initialDate ??
+          existentInternship.initialDate.toDateString(),
+        internship.until ??
+          existentInternship.until.toDateString(),
+      )
+    )
+      throw new BadRequestException(
+        'The initial date must be before the until date',
+      );
+
+    let opportunity;
+    if (internship.jobId) {
+      opportunity =
+        await this.prisma.opportunity.findUnique({
+          where: {
+            id: internship.jobId,
+          },
+          include: {
+            applicants: true,
+          },
+        });
+
+      if (!opportunity)
+        throw new NotFoundException(
+          `Opportunity with id ${internship.jobId} was not found`,
+        );
+    } else {
+      opportunity =
+        await this.prisma.opportunity.findUnique({
+          where: {
+            id: existentInternship.jobId,
+          },
+          include: {
+            applicants: true,
+          },
+        });
+    }
+
+    delete internship.jobId;
+    return this.prisma.internship.update({
+      data: {
+        ...internship,
+        initialDate: internship.initialDate
+          ? new Date(internship.initialDate)
+          : existentInternship.initialDate,
+        until: internship.until
+          ? new Date(internship.until)
+          : existentInternship.until,
+        jobId: opportunity.id,
+      },
+      where: {
+        id: internshipId,
+      },
+    });
+  }
+
+  async deleteInternship(
+    id: number,
+    user: Record<string, any>,
+  ) {
+    const isCompany = isUserACompany(user);
+
+    if (!isCompany)
+      throw new ForbiddenException(
+        'Only companies can delete an internship',
+      );
+
+    try {
+      await this.prisma.internship.findUniqueOrThrow(
+        {
+          where: {
+            id,
+          },
+        },
+      );
+    } catch (error) {
+      if (
+        error instanceof
+        Prisma.PrismaClientKnownRequestError
+      ) {
+        console.log('err', error);
+        if (error.code === 'P2025') {
+          throw new NotFoundException(
+            `Internship with id ${id} not found`,
+          );
+        }
+      }
+      throw error;
+    }
+
+    return this.prisma.internship.delete({
+      where: {
+        id,
+      },
+    });
   }
 }

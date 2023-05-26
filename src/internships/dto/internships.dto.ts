@@ -131,3 +131,38 @@ export class CreateInternshipDto {
   @IsNotEmpty()
   jobId: number;
 }
+
+export class UpdateInternshipDto {
+  @ApiProperty({
+    description:
+      'The first day of the internship',
+    example: '2023-08-13',
+  })
+  @IsDateString()
+  @IsOptional()
+  initialDate?: string;
+
+  @ApiProperty({
+    description: 'The last day of the internship',
+    example: '2024-02-13',
+  })
+  @IsDateString()
+  @IsOptional()
+  until?: string;
+
+  @ApiProperty({
+    description: "The intern manager's name",
+    example: 'Abel Ferreira',
+  })
+  @IsString()
+  @IsOptional()
+  managerName?: string;
+
+  @ApiProperty({
+    description: 'The opportunity id',
+    example: 1,
+  })
+  @IsNumber()
+  @IsOptional()
+  jobId?: number;
+}
