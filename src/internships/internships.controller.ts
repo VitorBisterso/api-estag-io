@@ -36,6 +36,44 @@ export class InternshipsController {
     private internshipsService: InternshipsService,
   ) {}
 
+  @ApiOperation({
+    summary: 'Get my internship (as student)',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description:
+      'Return my internship (as student)',
+    type: InternshipDto,
+  })
+  @Get('me')
+  getMyInternship(
+    @GetUser() user: Record<string, any>,
+  ) {
+    return this.internshipsService.getMyInternship(
+      user,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Get internship by id',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Return an internship by id',
+    type: InternshipDto,
+  })
+  @Get(':id')
+  getInternshipById(
+    @Param('id', ParseIntPipe)
+    internshipId: number,
+    @GetUser() user: Record<string, any>,
+  ) {
+    return this.internshipsService.getInternshipById(
+      internshipId,
+      user,
+    );
+  }
+
   @ApiOperation({ summary: 'Get internships' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -59,26 +97,6 @@ export class InternshipsController {
           })
           .json({ internships }),
       );
-  }
-
-  @ApiOperation({
-    summary: 'Get internship by id',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Return an internship by id',
-    type: InternshipDto,
-  })
-  @Get(':id')
-  getInternshipById(
-    @Param('id', ParseIntPipe)
-    internshipId: number,
-    @GetUser() user: Record<string, any>,
-  ) {
-    return this.internshipsService.getInternshipById(
-      internshipId,
-      user,
-    );
   }
 
   @ApiOperation({

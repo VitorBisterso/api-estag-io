@@ -121,6 +121,29 @@ export class InternshipsService {
     return internship;
   }
 
+  async getMyInternship(
+    user: Record<string, any>,
+  ) {
+    if (isUserACompany(user))
+      throw new ForbiddenException(
+        'You cannot perform this operation',
+      );
+
+    const internship =
+      await this.prisma.internship.findUnique({
+        where: {
+          studentId: user.id,
+        },
+        include: {
+          job: true,
+        },
+      });
+
+    if (!internship) return {};
+
+    return internship;
+  }
+
   async createInternship(
     internship: CreateInternshipDto,
     user: Record<string, any>,
