@@ -54,12 +54,12 @@ model Company {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cnpj     String   @unique
-  email    String   @unique
+  cnpj     String  @unique
+  email    String  @unique
   name     String
   password String
   phone    String
-  rating   Decimal?
+  rating   Decimal @default(5.0)
 
   reviews       Review[]
   opportunities Opportunity[]
@@ -123,6 +123,7 @@ model Review {
 
   title       String
   description String
+  rating      Decimal
 
   studentId Int
   student   User @relation(fields: [studentId], references: [id])

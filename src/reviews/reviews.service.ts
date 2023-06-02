@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
@@ -65,6 +66,11 @@ export class ReviewsService {
         'You cannot perform this operation',
       );
 
+    if (review.rating < 1 || review.rating > 5)
+      throw new UnprocessableEntityException(
+        'Rating must be an integer between 0 and 5',
+      );
+
     const company =
       await this.prisma.company.findUnique({
         where: {
@@ -77,12 +83,45 @@ export class ReviewsService {
         `Company with id ${review.companyId} was not found`,
       );
 
-    return this.prisma.review.create({
-      data: {
-        ...review,
-        studentId: user.id,
-        companyId: review.companyId,
-      },
-    });
+    const createReview =
+      this.prisma.review.create({
+        data: {
+          ...review,
+          studentId: user.id,
+          companyId: review.companyId,
+        },
+      });
+
+    const { _sum, _count } =
+      await this.prisma.review.aggregate({
+        where: {
+          companyId: review.companyId,
+        },
+        _sum: {
+          rating: true,
+        },
+        _count: {
+          rating: true,
+        },
+      });
+
+    const newRating =
+      (Number(_sum.rating ?? 0) + review.rating) /
+      (_count.rating + 1);
+
+    const updateCompanyRating =
+      this.prisma.company.update({
+        where: {
+          id: review.companyId,
+        },
+        data: {
+          rating: newRating,
+        },
+      });
+
+    await this.prisma.$transaction([
+      createReview,
+      updateCompanyRating,
+    ]);
   }
 }

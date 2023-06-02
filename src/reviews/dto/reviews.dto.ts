@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsNotEmpty,
   IsNumber,
@@ -11,6 +12,8 @@ import {
   AuthUserDto,
 } from 'src/auth/dto';
 import { Paginated } from 'src/commons/dto';
+import { DEFAULT_RATING } from 'src/consts';
+import { toNumber } from 'src/utils';
 
 export class ReviewDto {
   @ApiProperty({
@@ -77,6 +80,18 @@ export class CreateReviewDto {
   @IsString()
   @IsNotEmpty()
   description: string;
+
+  @ApiProperty({
+    description:
+      'The review rating (an integer between 1 and 5)',
+    type: Number,
+    example: DEFAULT_RATING,
+    default: DEFAULT_RATING,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  @Transform(({ value }) => toNumber(value))
+  rating: number;
 
   @ApiProperty({
     description: 'The reviewed company id',

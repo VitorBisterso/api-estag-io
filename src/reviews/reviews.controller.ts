@@ -66,18 +66,18 @@ export class ReviewsController {
     summary: 'Create a review',
   })
   @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Created review',
-    type: ReviewDto,
+    status: HttpStatus.NO_CONTENT,
   })
   @Post()
   createReview(
     @Body() review: CreateReviewDto,
     @GetUser() user: Record<string, any>,
+    @Response() res: Res,
   ) {
-    return this.reviewsService.createReview(
-      review,
-      user,
-    );
+    return this.reviewsService
+      .createReview(review, user)
+      .then(() =>
+        res.sendStatus(HttpStatus.NO_CONTENT),
+      );
   }
 }

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Review" ADD COLUMN     "rating" DECIMAL(65,30) NOT NULL DEFAULT 5.0;

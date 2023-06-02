@@ -17,7 +17,10 @@ import {
   SignInResponse,
   RefreshDto,
 } from './dto';
-import { PASSWORD_SIZE } from 'src/consts';
+import {
+  DEFAULT_RATING,
+  PASSWORD_SIZE,
+} from 'src/consts';
 import { isCNPJValid } from './helpers';
 
 @Injectable()
@@ -96,6 +99,7 @@ export class AuthService {
             password: hash,
             phone,
             cnpj,
+            rating: DEFAULT_RATING,
           },
         });
 
