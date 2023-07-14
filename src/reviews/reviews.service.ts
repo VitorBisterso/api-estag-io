@@ -11,6 +11,10 @@ import {
 } from './dto';
 import { USER_TYPE } from 'src/auth/dto';
 import { isUserACompany } from 'src/opportunities/helpers';
+import {
+  getForbiddenMessage,
+  getNotFoundMessage,
+} from 'src/utils/messages';
 
 @Injectable()
 export class ReviewsService {
@@ -23,7 +27,7 @@ export class ReviewsService {
   ) {
     if (userType !== 'COMPANY')
       throw new ForbiddenException(
-        'Only companies can view their own reviews',
+        getForbiddenMessage(),
       );
 
     const {
@@ -63,12 +67,12 @@ export class ReviewsService {
   ) {
     if (isUserACompany(user))
       throw new ForbiddenException(
-        'You cannot perform this operation',
+        getForbiddenMessage(),
       );
 
     if (review.rating < 1 || review.rating > 5)
       throw new UnprocessableEntityException(
-        'Rating must be an integer between 0 and 5',
+        'A nota deve ser um número inteiro entre 1 e 5',
       );
 
     const company =
@@ -80,7 +84,10 @@ export class ReviewsService {
 
     if (!company)
       throw new NotFoundException(
-        `Company with id ${review.companyId} was not found`,
+        getNotFoundMessage(
+          'Empresa',
+          review.companyId.toString(),
+        ),
       );
 
     const createReview =

@@ -14,14 +14,22 @@ import {
 import { Paginated } from 'src/commons/dto';
 import { DEFAULT_RATING } from 'src/consts';
 import { toNumber } from 'src/utils';
+import {
+  getRequiredMessage,
+  getStringMessage,
+} from 'src/utils/messages';
 
 export class ReviewDto {
   @ApiProperty({
     description: 'The review title',
     example: 'Minha avaliação da empresa X',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('title'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('title'),
+  })
   title: string;
 
   @ApiProperty({
@@ -29,8 +37,12 @@ export class ReviewDto {
     example:
       'Eu acho que o processo com essa empresa...',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('description'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('description'),
+  })
   description: string;
 
   @ApiProperty({
@@ -39,7 +51,9 @@ export class ReviewDto {
     type: AuthUserDto,
   })
   @IsObject()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: getRequiredMessage('student'),
+  })
   student: AuthUserDto;
 
   @ApiProperty({
@@ -47,7 +61,9 @@ export class ReviewDto {
     type: AuthCompanyDto,
   })
   @IsObject()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: getRequiredMessage('company'),
+  })
   company: AuthCompanyDto;
 }
 
@@ -58,7 +74,9 @@ export class ReviewFilterDto extends Paginated<ReviewDto> {
       'Eu acho que o processo com essa empresa...',
     required: false,
   })
-  @IsString()
+  @IsString({
+    message: getStringMessage('description'),
+  })
   @IsOptional()
   description?: string;
 }
@@ -68,8 +86,12 @@ export class CreateReviewDto {
     description: 'The review title',
     example: 'Minha avaliação da empresa X',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('title'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('title'),
+  })
   title: string;
 
   @ApiProperty({
@@ -77,8 +99,12 @@ export class CreateReviewDto {
     example:
       'Eu acho que o processo com essa empresa...',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('description'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('description'),
+  })
   description: string;
 
   @ApiProperty({
@@ -89,7 +115,9 @@ export class CreateReviewDto {
     default: DEFAULT_RATING,
   })
   @IsNumber()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: getRequiredMessage('rating'),
+  })
   @Transform(({ value }) => toNumber(value))
   rating: number;
 
@@ -98,6 +126,9 @@ export class CreateReviewDto {
     example: 1,
   })
   @IsNumber()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: getRequiredMessage('companyId'),
+  })
+  @Transform(({ value }) => toNumber(value))
   companyId: number;
 }

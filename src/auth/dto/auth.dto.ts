@@ -6,6 +6,11 @@ import {
   IsDateString,
   IsMobilePhone,
 } from 'class-validator';
+import {
+  getDateStringMessage,
+  getRequiredMessage,
+  getStringMessage,
+} from 'src/utils/messages';
 
 export type USER_TYPE = 'USER' | 'COMPANY';
 
@@ -14,31 +19,47 @@ export class AuthUserDto {
     example: 'user@email.com',
     description: 'The student email',
   })
-  @IsEmail()
-  @IsNotEmpty()
+  @IsEmail(undefined, {
+    message: 'Email inválido',
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('email'),
+  })
   email: string;
 
   @ApiProperty({
     description: 'The student password',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('password'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('password'),
+  })
   password: string;
 
   @ApiProperty({
     example: 'Abel Ferreira',
     description: 'The student name',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('name'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('name'),
+  })
   name: string;
 
   @ApiProperty({
     example: '2002-02-02',
     description: 'The student birthday',
   })
-  @IsDateString()
-  @IsNotEmpty()
+  @IsDateString(undefined, {
+    message: getDateStringMessage('birthday'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('birthday'),
+  })
   birthday: string;
 }
 
@@ -47,39 +68,60 @@ export class AuthCompanyDto {
     example: '99999999000101',
     description: 'The company CNPJ',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('cnpj'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('cnpj'),
+  })
   cnpj: string;
 
   @ApiProperty({
     example: 'company@email.com',
     description: 'The company email',
   })
-  @IsEmail()
-  @IsNotEmpty()
+  @IsEmail(undefined, {
+    message: 'Email inválido',
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('email'),
+  })
   email: string;
 
   @ApiProperty({
     description: 'The company password',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('password'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('password'),
+  })
   password: string;
 
   @ApiProperty({
     example: 'Sensedia',
     description: 'The company name',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('name'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('name'),
+  })
   name: string;
 
   @ApiProperty({
-    example: '5519999665999',
+    example: '5519999999999',
     description: 'The company phone',
   })
-  @IsMobilePhone('pt-BR')
-  @IsNotEmpty()
+  @IsMobilePhone('pt-BR', undefined, {
+    message:
+      'O campo "phone" deve ter o seguinte formato "5519999999999"',
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('phone'),
+  })
   phone: string;
 }
 
@@ -88,24 +130,24 @@ export class AuthSignInDto {
     example: 'email@email.com',
     description: 'The user email',
   })
-  @IsEmail()
-  @IsNotEmpty()
+  @IsEmail(undefined, {
+    message: 'Email inválido',
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('email'),
+  })
   email: string;
 
   @ApiProperty({
     description: 'The user password',
   })
-  @IsString()
-  @IsNotEmpty()
-  password: string;
-
-  @ApiProperty({
-    example: 'USER | COMPANY',
-    description: 'The user type',
+  @IsString({
+    message: getStringMessage('password'),
   })
-  @IsString()
-  @IsNotEmpty()
-  userType: USER_TYPE;
+  @IsNotEmpty({
+    message: getRequiredMessage('password'),
+  })
+  password: string;
 }
 
 export class SignInResponse {
@@ -125,16 +167,24 @@ export class RefreshDto {
     example: 'email@email.com',
     description: 'The user email',
   })
-  @IsEmail()
-  @IsNotEmpty()
+  @IsEmail(undefined, {
+    message: 'Email inválido',
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('email'),
+  })
   email: string;
 
   @ApiProperty({
     example: 'USER | COMPANY',
     description: 'The user type',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('userType'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('userType'),
+  })
   userType: USER_TYPE;
 }
 

@@ -22,6 +22,7 @@ import {
   PASSWORD_SIZE,
 } from 'src/consts';
 import { isCNPJValid } from './helpers';
+import { getNotFoundMessage } from 'src/utils/messages';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +38,7 @@ export class AuthService {
 
     if (password.length < PASSWORD_SIZE)
       throw new BadRequestException(
-        `Password must have at least ${PASSWORD_SIZE} characters`,
+        `O campo "password" deve ter no mínimo ${PASSWORD_SIZE} caracteres`,
       );
 
     const hash = await argon.hash(password);
@@ -66,7 +67,7 @@ export class AuthService {
       ) {
         if (error.code === 'P2002') {
           throw new ForbiddenException(
-            'Credentials taken',
+            'Este email já está cadastrado',
           );
         }
       }
@@ -80,12 +81,12 @@ export class AuthService {
 
     if (password.length < PASSWORD_SIZE)
       throw new BadRequestException(
-        `Password must have at least ${PASSWORD_SIZE}`,
+        `O campo "password" deve ter no mínimo ${PASSWORD_SIZE} caracteres`,
       );
 
     if (!isCNPJValid(cnpj))
       throw new BadRequestException(
-        'Invalid CNPJ',
+        'CNPJ inválido',
       );
 
     const hash = await argon.hash(password);
@@ -117,7 +118,7 @@ export class AuthService {
       ) {
         if (error.code === 'P2002') {
           throw new ForbiddenException(
-            'Credentials taken',
+            'Este email já está cadastrado',
           );
         }
       }
@@ -128,17 +129,16 @@ export class AuthService {
   async signin(
     dto: AuthSignInDto,
   ): Promise<SignInResponse> {
-    const { userType } = dto;
+    let user, userType: USER_TYPE;
 
-    let user;
-
-    if (userType === 'USER') {
-      user = await this.prisma.user.findUnique({
-        where: {
-          email: dto.email,
-        },
-      });
-    } else {
+    userType = 'USER';
+    user = await this.prisma.user.findUnique({
+      where: {
+        email: dto.email,
+      },
+    });
+    if (!user) {
+      userType = 'COMPANY';
       user = await this.prisma.company.findUnique(
         {
           where: {
@@ -150,7 +150,7 @@ export class AuthService {
 
     if (!user)
       throw new ForbiddenException(
-        'Invalid credentials',
+        'Credenciais inválidas',
       );
 
     const passwordMatches = await argon.verify(
@@ -159,19 +159,19 @@ export class AuthService {
     );
     if (!passwordMatches)
       throw new ForbiddenException(
-        'Invalid credentials',
+        'Credenciais inválidas',
       );
 
     const accessToken = await this.signToken(
       user.id,
       user.email,
-      dto.userType,
+      userType,
     );
 
     const refreshToken = await this.signToken(
       user.id,
       user.email,
-      dto.userType,
+      userType,
       true,
     );
 
@@ -219,7 +219,7 @@ export class AuthService {
     const { userType } = dto;
     if (!valid || valid.userType !== userType)
       throw new BadRequestException(
-        'Invalid refresh token',
+        'Token inválido',
       );
 
     let user;
@@ -241,12 +241,12 @@ export class AuthService {
 
     if (!user)
       throw new ForbiddenException(
-        'Invalid credentials',
+        'Credenciais inválidas',
       );
 
     if (!user)
       throw new NotFoundException(
-        `User with email "${dto.email}" not found`,
+        getNotFoundMessage('Usuário', dto.email),
       );
 
     return {

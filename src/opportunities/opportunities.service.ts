@@ -18,6 +18,11 @@ import {
   isUserACompany,
 } from './helpers';
 import { Prisma } from '@prisma/client';
+import {
+  getDeadlineDateMessage,
+  getForbiddenMessage,
+  getNotFoundMessage,
+} from 'src/utils/messages';
 
 @Injectable()
 export class OpportunitiesService {
@@ -121,7 +126,10 @@ export class OpportunitiesService {
 
     if (!opportunity)
       throw new NotFoundException(
-        `Opportunity with id ${opportunityId} not found`,
+        getNotFoundMessage(
+          'Vaga',
+          opportunityId.toString(),
+        ),
       );
 
     if (
@@ -129,7 +137,7 @@ export class OpportunitiesService {
       opportunity.companyId !== userId
     )
       throw new ForbiddenException(
-        'You can only visualize your own opportunities',
+        getForbiddenMessage(),
       );
 
     return opportunity;
@@ -141,27 +149,27 @@ export class OpportunitiesService {
   ) {
     if (!isUserACompany(user))
       throw new ForbiddenException(
-        'You cannot perform this operation',
+        getForbiddenMessage(),
       );
 
     if (!isTypeValid(opportunity.type))
       throw new BadRequestException(
-        'Opportunity type must be either "LOCAL" or "REMOTE"',
+        'O tipo da oportunidade deve ser "LOCAL" ou "REMOTA"',
       );
 
     if (opportunity.weeklyWorkload <= 0)
       throw new BadGatewayException(
-        'Weekly workload must be a positive number',
+        'A carga semanal deve ser um número inteiro positivo',
       );
 
     if (Number(opportunity.salary) <= 0)
       throw new BadGatewayException(
-        'Salary must be a positive number',
+        'O salário deve ser um número positivo',
       );
 
     if (!isDeadlineValid(opportunity.deadline))
       throw new BadRequestException(
-        'A deadline must be a date in the future',
+        getDeadlineDateMessage(),
       );
 
     const createdOpportunity =
@@ -187,7 +195,7 @@ export class OpportunitiesService {
 
     if (!isCompany)
       throw new ForbiddenException(
-        'Only companies can edit an opportunity',
+        getForbiddenMessage(),
       );
 
     try {
@@ -206,7 +214,10 @@ export class OpportunitiesService {
         console.log('err', error);
         if (error.code === 'P2025') {
           throw new NotFoundException(
-            `Opportunity with id ${id} not found`,
+            getNotFoundMessage(
+              'Vaga',
+              id.toString(),
+            ),
           );
         }
       }
@@ -229,7 +240,7 @@ export class OpportunitiesService {
 
     if (!isCompany)
       throw new ForbiddenException(
-        'Only companies can delete an opportunity',
+        getForbiddenMessage(),
       );
 
     try {
@@ -248,7 +259,10 @@ export class OpportunitiesService {
         console.log('err', error);
         if (error.code === 'P2025') {
           throw new NotFoundException(
-            `Opportunity with id ${id} not found`,
+            getNotFoundMessage(
+              'Vaga',
+              id.toString(),
+            ),
           );
         }
       }
@@ -270,7 +284,7 @@ export class OpportunitiesService {
 
     if (isCompany)
       throw new ForbiddenException(
-        'Only students can apply for an opportunity',
+        getForbiddenMessage(),
       );
 
     const opportunity =
@@ -285,7 +299,10 @@ export class OpportunitiesService {
 
     if (!opportunity)
       throw new NotFoundException(
-        `Opportunity with id ${opportunityId} not found`,
+        getNotFoundMessage(
+          'Vaga',
+          opportunityId.toString(),
+        ),
       );
 
     const hasApplied =
@@ -295,7 +312,7 @@ export class OpportunitiesService {
       );
     if (hasApplied)
       throw new UnprocessableEntityException(
-        'You have already applied for this opportunity',
+        'Você já está aplicado a essa vaga',
       );
 
     return this.prisma.opportunityUser.create({

@@ -4,22 +4,34 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import {
+  getRequiredMessage,
+  getStringMessage,
+} from 'src/utils/messages';
 
 export class MailDto {
   @ApiProperty({
     description: 'Who is the email to',
     example: 'email@email.com',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('to'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('to'),
+  })
   to: string;
 
   @ApiProperty({
     description: 'The email subject',
     example: 'Verification code',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('subject'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('subject'),
+  })
   subject: string;
 
   @ApiProperty({
@@ -27,8 +39,12 @@ export class MailDto {
       'The template name. Must be in the templates folder',
     example: 'verification',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('template'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('template'),
+  })
   template: string;
 
   @ApiProperty({

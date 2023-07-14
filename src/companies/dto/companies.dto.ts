@@ -5,6 +5,7 @@ import {
 } from 'class-validator';
 import { AuthCompanyDto } from 'src/auth/dto';
 import { Paginated } from 'src/commons/dto';
+import { getStringMessage } from 'src/utils/messages';
 
 export class CompanyFilterDto extends Paginated<AuthCompanyDto> {
   @ApiProperty({
@@ -12,7 +13,9 @@ export class CompanyFilterDto extends Paginated<AuthCompanyDto> {
     example: 'Sensedia',
     required: false,
   })
-  @IsString()
+  @IsString({
+    message: getStringMessage('name'),
+  })
   @IsOptional()
   name?: string;
 }

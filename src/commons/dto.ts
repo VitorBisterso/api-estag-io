@@ -10,6 +10,7 @@ import {
   PAGE_SIZE,
 } from 'src/consts';
 import { toNumber } from 'src/utils';
+import { getStringMessage } from 'src/utils/messages';
 
 export type DIRECTION_ORDER = 'asc' | 'desc';
 
@@ -49,7 +50,9 @@ export class Paginated<T> {
     example: 'name',
     required: false,
   })
-  @IsString()
+  @IsString({
+    message: getStringMessage('orderBy'),
+  })
   @IsOptional()
   orderBy?: keyof T;
 
@@ -59,7 +62,9 @@ export class Paginated<T> {
     default: 'asc',
     required: false,
   })
-  @IsString()
+  @IsString({
+    message: getStringMessage('direction'),
+  })
   @IsOptional()
   direction: DIRECTION_ORDER = 'asc';
 }

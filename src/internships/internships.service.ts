@@ -17,6 +17,12 @@ import {
 } from 'src/opportunities/helpers';
 import { areInternshipsDatesValid } from './helpers';
 import { Prisma } from '@prisma/client';
+import {
+  getDeadlineDateMessage,
+  getForbiddenMessage,
+  getInitialDateMessage,
+  getNotFoundMessage,
+} from 'src/utils/messages';
 
 @Injectable()
 export class InternshipsService {
@@ -28,7 +34,7 @@ export class InternshipsService {
   ) {
     if (!isUserACompany(user))
       throw new ForbiddenException(
-        'You cannot perform this operation',
+        getForbiddenMessage(),
       );
 
     const {
@@ -84,7 +90,7 @@ export class InternshipsService {
   ) {
     if (!isUserACompany(user))
       throw new ForbiddenException(
-        'You cannot perform this operation',
+        getForbiddenMessage(),
       );
 
     const internship =
@@ -100,7 +106,10 @@ export class InternshipsService {
 
     if (!internship)
       throw new NotFoundException(
-        `Internship with id ${internshipId} not found`,
+        getNotFoundMessage(
+          'Estágio',
+          internshipId.toString(),
+        ),
       );
 
     const opportunity =
@@ -115,7 +124,10 @@ export class InternshipsService {
       opportunity.companyId !== user.id
     )
       throw new NotFoundException(
-        `Internship with id ${internshipId} not found`,
+        getNotFoundMessage(
+          'Estágio',
+          internshipId.toString(),
+        ),
       );
 
     return internship;
@@ -126,7 +138,7 @@ export class InternshipsService {
   ) {
     if (isUserACompany(user))
       throw new ForbiddenException(
-        'You cannot perform this operation',
+        getForbiddenMessage(),
       );
 
     const internship =
@@ -150,12 +162,12 @@ export class InternshipsService {
   ) {
     if (!isUserACompany(user))
       throw new ForbiddenException(
-        'You cannot perform this operation',
+        getForbiddenMessage(),
       );
 
     if (!isDeadlineValid(internship.until))
       throw new BadRequestException(
-        'The until date must be a date in the future',
+        getDeadlineDateMessage(),
       );
 
     if (
@@ -165,7 +177,7 @@ export class InternshipsService {
       )
     )
       throw new BadRequestException(
-        'The initial date must be before the until date',
+        getInitialDateMessage(),
       );
 
     const existentInternship =
@@ -177,7 +189,7 @@ export class InternshipsService {
 
     if (existentInternship)
       throw new BadRequestException(
-        'There is already an internship with this student',
+        'Já existe um estágio cadastrado para esse estudante',
       );
 
     const student =
@@ -189,7 +201,10 @@ export class InternshipsService {
 
     if (!student)
       throw new NotFoundException(
-        `Student with id ${internship.studentId} was not found`,
+        getNotFoundMessage(
+          'Estudante',
+          internship.studentId.toString(),
+        ),
       );
 
     const opportunity =
@@ -204,7 +219,10 @@ export class InternshipsService {
 
     if (!opportunity)
       throw new NotFoundException(
-        `Opportunity with id ${internship.jobId} was not found`,
+        getNotFoundMessage(
+          'Vaga',
+          internship.jobId.toString(),
+        ),
       );
 
     const isStudentApplied =
@@ -214,7 +232,7 @@ export class InternshipsService {
       );
     if (!isStudentApplied)
       throw new UnprocessableEntityException(
-        `Student with id ${internship.studentId} not applied to opportunity with id ${internship.jobId}`,
+        `Estudante com id "${internship.studentId}" não está aplicado a vaga de id "${internship.jobId}"`,
       );
     0;
 
@@ -247,13 +265,16 @@ export class InternshipsService {
       });
 
     if (!existentInternship)
-      throw new BadRequestException(
-        `Internship with id ${internshipId} not found`,
+      throw new NotFoundException(
+        getNotFoundMessage(
+          'Estágio',
+          internshipId.toString(),
+        ),
       );
 
     if (!isUserACompany(user))
       throw new ForbiddenException(
-        'You cannot perform this operation',
+        getForbiddenMessage(),
       );
 
     if (
@@ -261,7 +282,7 @@ export class InternshipsService {
       !isDeadlineValid(internship.until)
     )
       throw new BadRequestException(
-        'The until date must be a date in the future',
+        getDeadlineDateMessage(),
       );
 
     if (
@@ -273,7 +294,7 @@ export class InternshipsService {
       )
     )
       throw new BadRequestException(
-        'The initial date must be before the until date',
+        getInitialDateMessage(),
       );
 
     let opportunity;
@@ -290,7 +311,10 @@ export class InternshipsService {
 
       if (!opportunity)
         throw new NotFoundException(
-          `Opportunity with id ${internship.jobId} was not found`,
+          getNotFoundMessage(
+            'Vaga',
+            internship.jobId.toString(),
+          ),
         );
     } else {
       opportunity =
@@ -330,7 +354,7 @@ export class InternshipsService {
 
     if (!isCompany)
       throw new ForbiddenException(
-        'Only companies can delete an internship',
+        getForbiddenMessage(),
       );
 
     try {
@@ -349,7 +373,10 @@ export class InternshipsService {
         console.log('err', error);
         if (error.code === 'P2025') {
           throw new NotFoundException(
-            `Internship with id ${id} not found`,
+            getNotFoundMessage(
+              'Vaga',
+              id.toString(),
+            ),
           );
         }
       }

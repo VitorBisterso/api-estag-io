@@ -7,6 +7,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CompanyFilterDto } from './dto';
 import { isUserACompany } from 'src/opportunities/helpers';
 import { USER_TYPE } from 'src/auth/dto';
+import {
+  getForbiddenMessage,
+  getNotFoundMessage,
+} from 'src/utils/messages';
 
 @Injectable()
 export class CompaniesService {
@@ -18,7 +22,7 @@ export class CompaniesService {
   ) {
     if (isUserACompany(userType))
       throw new ForbiddenException(
-        'Only users can view all companies',
+        getForbiddenMessage(),
       );
 
     const {
@@ -55,7 +59,7 @@ export class CompaniesService {
   ) {
     if (userType === 'COMPANY')
       throw new ForbiddenException(
-        'Only users can view another company',
+        getForbiddenMessage(),
       );
 
     const company =
@@ -70,7 +74,10 @@ export class CompaniesService {
 
     if (!company)
       throw new NotFoundException(
-        `Company with id ${companyId} not found`,
+        getNotFoundMessage(
+          'Empresa',
+          companyId.toString(),
+        ),
       );
 
     delete company.password;

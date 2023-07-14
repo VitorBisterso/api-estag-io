@@ -8,30 +8,47 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import {
+  getDateStringMessage,
+  getRequiredMessage,
+  getStringMessage,
+} from 'src/utils/messages';
 
 export class GetProcessStepsDto {
   @ApiProperty({
     description: 'The process step title',
     example: 'Entrevista com RH',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('title'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('title'),
+  })
   title: string;
 
   @ApiProperty({
     description: 'The process step description',
     example: 'Nesta etapa, o candidato...',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('description'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('description'),
+  })
   description: string;
 
   @ApiProperty({
     description: 'The process step deadline',
     example: '2023-08-13',
   })
-  @IsDateString()
-  @IsNotEmpty()
+  @IsDateString(undefined, {
+    message: getDateStringMessage('deadline'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('deadline'),
+  })
   deadline: string;
 
   @ApiProperty({
@@ -40,7 +57,9 @@ export class GetProcessStepsDto {
     example: true,
   })
   @IsBoolean()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: getRequiredMessage('onlyOnDeadline'),
+  })
   onlyOnDeadline: boolean;
 
   @ApiProperty({
@@ -48,7 +67,9 @@ export class GetProcessStepsDto {
     isArray: true,
   })
   @IsArray()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: getRequiredMessage('applicants'),
+  })
   applicants: Array<any>;
 }
 
@@ -57,24 +78,36 @@ export class CreateProcessStepDto {
     description: 'The process step title',
     example: 'Entrevista com RH',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('title'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('title'),
+  })
   title: string;
 
   @ApiProperty({
     description: 'The process step description',
     example: 'Nesta etapa, o candidato...',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('description'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('description'),
+  })
   description: string;
 
   @ApiProperty({
     description: 'The process step deadline',
     example: '2023-08-13',
   })
-  @IsDateString()
-  @IsNotEmpty()
+  @IsDateString(undefined, {
+    message: getDateStringMessage('deadline'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('deadline'),
+  })
   deadline: string;
 
   @ApiProperty({
@@ -83,7 +116,9 @@ export class CreateProcessStepDto {
     example: true,
   })
   @IsBoolean()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: getRequiredMessage('onlyOnDeadline'),
+  })
   onlyOnDeadline: boolean;
 
   @ApiProperty({
@@ -91,7 +126,9 @@ export class CreateProcessStepDto {
     isArray: true,
   })
   @IsArray()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: getRequiredMessage('applicants'),
+  })
   applicants: Array<number>;
 }
 
@@ -101,14 +138,18 @@ export class UpdateProcessStepDto {
     example: 1,
   })
   @IsNumber()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: getRequiredMessage('id'),
+  })
   id: number;
 
   @ApiProperty({
     description: 'The process step title',
     example: 'Entrevista com RH',
   })
-  @IsString()
+  @IsString({
+    message: getStringMessage('title'),
+  })
   @IsOptional()
   title: string;
 
@@ -116,7 +157,9 @@ export class UpdateProcessStepDto {
     description: 'The process step description',
     example: 'Nesta etapa, o candidato...',
   })
-  @IsString()
+  @IsString({
+    message: getStringMessage('description'),
+  })
   @IsOptional()
   description: string;
 
@@ -124,7 +167,9 @@ export class UpdateProcessStepDto {
     description: 'The process step deadline',
     example: '2023-08-13',
   })
-  @IsDateString()
+  @IsDateString(undefined, {
+    message: getDateStringMessage('deadline'),
+  })
   @IsOptional()
   deadline: string;
 

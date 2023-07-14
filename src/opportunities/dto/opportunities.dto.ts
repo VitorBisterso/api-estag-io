@@ -11,6 +11,11 @@ import {
 } from 'class-validator';
 import { Paginated } from 'src/commons/dto';
 import { toBoolean, toNumber } from 'src/utils';
+import {
+  getDateStringMessage,
+  getRequiredMessage,
+  getStringMessage,
+} from 'src/utils/messages';
 
 export type OPPORTUNITY_TYPE = 'REMOTE' | 'LOCAL';
 
@@ -19,8 +24,12 @@ export class OpportunityDto {
     description: 'The opportunity title',
     example: 'Vaga de estágio de desenvolvimento',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('title'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('title'),
+  })
   title: string;
 
   @ApiProperty({
@@ -28,16 +37,24 @@ export class OpportunityDto {
     example:
       'Quer fazer parte de uma empresa que...',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('description'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('description'),
+  })
   description: string;
 
   @ApiProperty({
     description: 'The opportunity type',
     example: 'REMOTE | LOCAL',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: getStringMessage('type'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('type'),
+  })
   type: OPPORTUNITY_TYPE;
 
   @ApiProperty({
@@ -45,7 +62,9 @@ export class OpportunityDto {
     example: '2000,00',
   })
   @IsCurrency()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: getRequiredMessage('salary'),
+  })
   salary: string;
 
   @ApiProperty({
@@ -53,8 +72,12 @@ export class OpportunityDto {
       'The opportunity registration deadline',
     example: '2023-08-13',
   })
-  @IsDateString()
-  @IsNotEmpty()
+  @IsDateString(undefined, {
+    message: getDateStringMessage('deadline'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('deadline'),
+  })
   deadline: string;
 
   @ApiProperty({
@@ -63,7 +86,9 @@ export class OpportunityDto {
     example: 30,
   })
   @IsNumber()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: getRequiredMessage('weeklyWorkload'),
+  })
   weeklyWorkload: number;
 
   @ApiProperty({
@@ -72,7 +97,9 @@ export class OpportunityDto {
     example: true,
   })
   @IsBoolean()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: getRequiredMessage('isActive'),
+  })
   isActive: boolean;
 }
 
@@ -82,7 +109,9 @@ export class OpportunityFilterDto extends Paginated<OpportunityDto> {
     example: 'Vaga de estágio de desenvolvimento',
     required: false,
   })
-  @IsString()
+  @IsString({
+    message: getStringMessage('title'),
+  })
   @IsOptional()
   title?: string;
 
@@ -91,7 +120,9 @@ export class OpportunityFilterDto extends Paginated<OpportunityDto> {
     example: 'REMOTE | LOCAL',
     required: false,
   })
-  @IsString()
+  @IsString({
+    message: getStringMessage('type'),
+  })
   @IsOptional()
   type?: OPPORTUNITY_TYPE;
 

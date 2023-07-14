@@ -12,6 +12,11 @@ import {
   UpdateProcessStepDto,
 } from './dto';
 import { isDeadlineValid } from 'src/opportunities/helpers';
+import {
+  getDeadlineDateMessage,
+  getForbiddenMessage,
+  getNotFoundMessage,
+} from 'src/utils/messages';
 
 @Injectable()
 export class ProcessStepsService {
@@ -25,7 +30,7 @@ export class ProcessStepsService {
 
     if (!isCompany)
       throw new ForbiddenException(
-        'Only companies can view process steps from an opportunity',
+        getForbiddenMessage(),
       );
 
     try {
@@ -44,7 +49,10 @@ export class ProcessStepsService {
         console.log('err', error);
         if (error.code === 'P2025') {
           throw new NotFoundException(
-            `Opportunity with id ${opportunityId} not found`,
+            getNotFoundMessage(
+              'Vaga',
+              opportunityId.toString(),
+            ),
           );
         }
       }
@@ -72,14 +80,14 @@ export class ProcessStepsService {
       processSteps.length <= 0
     )
       throw new UnprocessableEntityException(
-        'You have to submit some steps to create them',
+        'Envie as informações dos passos para criá-los',
       );
 
     const isCompany = isUserACompany(user);
 
     if (!isCompany)
       throw new ForbiddenException(
-        'Only companies can create process steps',
+        getForbiddenMessage(),
       );
 
     const opportunity =
@@ -91,7 +99,10 @@ export class ProcessStepsService {
 
     if (!opportunity)
       throw new NotFoundException(
-        `Opportunity with id ${opportunityId} not found`,
+        getNotFoundMessage(
+          'Vaga',
+          opportunityId.toString(),
+        ),
       );
 
     const steps = await Promise.all(
@@ -115,7 +126,10 @@ export class ProcessStepsService {
 
                 if (!user)
                   throw new NotFoundException(
-                    `User with id ${applicantId} not found`,
+                    getNotFoundMessage(
+                      'Estudante',
+                      applicantId.toString(),
+                    ),
                   );
 
                 return user;
@@ -128,7 +142,7 @@ export class ProcessStepsService {
           !isDeadlineValid(processStep.deadline)
         )
           throw new UnprocessableEntityException(
-            'A deadline must be a date in the future',
+            getDeadlineDateMessage(),
           );
 
         return {
@@ -158,14 +172,14 @@ export class ProcessStepsService {
       processSteps.length <= 0
     )
       throw new UnprocessableEntityException(
-        'You have to submit some steps to update them',
+        'Envie as informações dos passos para atualizá-los',
       );
 
     const isCompany = isUserACompany(user);
 
     if (!isCompany)
       throw new ForbiddenException(
-        'Only companies can update process steps',
+        getForbiddenMessage(),
       );
 
     const opportunity =
@@ -177,7 +191,10 @@ export class ProcessStepsService {
 
     if (!opportunity)
       throw new NotFoundException(
-        `Opportunity with id ${opportunityId} not found`,
+        getNotFoundMessage(
+          'Vaga',
+          opportunityId.toString(),
+        ),
       );
 
     const steps = await Promise.all(
@@ -190,7 +207,7 @@ export class ProcessStepsService {
 
         if (!id)
           throw new UnprocessableEntityException(
-            'You must pass the steps ids',
+            'Envie o ids de cada passo',
           );
 
         const step =
@@ -207,7 +224,10 @@ export class ProcessStepsService {
 
         if (!step)
           throw new NotFoundException(
-            `Step with id ${id} not found`,
+            getNotFoundMessage(
+              'Passo',
+              id.toString(),
+            ),
           );
 
         if (
@@ -215,7 +235,7 @@ export class ProcessStepsService {
           !isDeadlineValid(processStep.deadline)
         )
           throw new UnprocessableEntityException(
-            'A deadline must be a date in the future',
+            getDeadlineDateMessage(),
           );
 
         delete step.opportunityId;
@@ -254,7 +274,10 @@ export class ProcessStepsService {
 
                 if (!user)
                   throw new NotFoundException(
-                    `User with id ${applicantId} not found`,
+                    getNotFoundMessage(
+                      'Usuário',
+                      applicantId.toString(),
+                    ),
                   );
 
                 step.applicants.push(user);
@@ -303,7 +326,7 @@ export class ProcessStepsService {
 
     if (!isCompany)
       throw new ForbiddenException(
-        'Only companies can delete process steps',
+        getForbiddenMessage(),
       );
 
     const processStep =
@@ -315,7 +338,10 @@ export class ProcessStepsService {
 
     if (!processStep)
       throw new NotFoundException(
-        `Process step with id ${processStepId} not found`,
+        getNotFoundMessage(
+          'Passo',
+          processStepId.toString(),
+        ),
       );
 
     return this.prisma.processStep.delete({
