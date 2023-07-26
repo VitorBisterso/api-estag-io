@@ -58,10 +58,10 @@ export class OpportunitiesController {
         isCompany ? 'COMPANY' : 'USER',
         user.id,
       )
-      .then((opportunities) =>
+      .then(({ opportunities, count }) =>
         res
           .set({
-            'Content-Range': opportunities.length,
+            'Content-Range': count,
           })
           .json({ opportunities }),
       );

@@ -90,10 +90,10 @@ export class InternshipsController {
   ) {
     return this.internshipsService
       .getInternships(user, filter)
-      .then((internships) =>
+      .then(({ internships, count }) =>
         res
           .set({
-            'Content-Range': internships.length,
+            'Content-Range': count,
           })
           .json({ internships }),
       );

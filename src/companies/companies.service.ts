@@ -33,6 +33,13 @@ export class CompaniesService {
       name,
     } = filter;
 
+    const { _count: count } =
+      await this.prisma.company.aggregate({
+        _count: {
+          id: true,
+        },
+      });
+
     const companies =
       await this.prisma.company.findMany({
         skip: (page - 1) * size,
@@ -47,10 +54,13 @@ export class CompaniesService {
         },
       });
 
-    return companies.map((c) => {
-      delete c.password;
-      return c;
-    });
+    return {
+      companies: companies.map((c) => {
+        delete c.password;
+        return c;
+      }),
+      count: count.id,
+    };
   }
 
   async getCompanyById(

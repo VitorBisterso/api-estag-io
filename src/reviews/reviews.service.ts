@@ -45,6 +45,13 @@ export class ReviewsService {
       companyId: { equals: userId },
     };
 
+    const { _count: count } =
+      await this.prisma.review.aggregate({
+        _count: {
+          id: true,
+        },
+      });
+
     const reviews =
       await this.prisma.review.findMany({
         skip: (page - 1) * size,
@@ -58,7 +65,7 @@ export class ReviewsService {
         },
       });
 
-    return reviews;
+    return { reviews, count: count.id };
   }
 
   async createReview(

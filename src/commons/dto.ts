@@ -40,7 +40,6 @@ export class Paginated<T> {
   @Transform(({ value }) =>
     toNumber(value, {
       default: PAGE_SIZE,
-      min: PAGE_SIZE,
     }),
   )
   size: number = PAGE_SIZE;

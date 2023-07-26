@@ -32,7 +32,10 @@ export class OpportunitiesService {
     filter: OpportunityFilterDto,
     userType: USER_TYPE,
     userId: number,
-  ) {
+  ): Promise<{
+    opportunities: Array<any>;
+    count: number;
+  }> {
     const {
       page,
       size,
@@ -66,6 +69,13 @@ export class OpportunitiesService {
         companyId: { equals: userId },
       };
     }
+
+    const { _count: count } =
+      await this.prisma.opportunity.aggregate({
+        _count: {
+          id: true,
+        },
+      });
 
     const opportunities =
       await this.prisma.opportunity.findMany({
@@ -102,10 +112,13 @@ export class OpportunitiesService {
           },
         );
 
-      return withoutUnauthorizedFields;
+      return {
+        opportunities: withoutUnauthorizedFields,
+        count: count.id,
+      };
     }
 
-    return opportunities;
+    return { opportunities, count: count.id };
   }
 
   async getOpportunityById(

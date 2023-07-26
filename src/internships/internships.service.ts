@@ -58,30 +58,40 @@ export class InternshipsService {
             [orderBy]: direction,
           };
 
-    return await this.prisma.internship.findMany({
-      skip: (page - 1) * size,
-      take: size,
-      where: {
-        student: {
-          name: {
-            contains: internName,
+    const { _count: count } =
+      await this.prisma.internship.aggregate({
+        _count: {
+          id: true,
+        },
+      });
+
+    const internships =
+      await this.prisma.internship.findMany({
+        skip: (page - 1) * size,
+        take: size,
+        where: {
+          student: {
+            name: {
+              contains: internName,
+            },
+          },
+          job: {
+            type: {
+              equals: type,
+            },
+            weeklyWorkload: {
+              equals: weeklyWorkload,
+            },
           },
         },
-        job: {
-          type: {
-            equals: type,
-          },
-          weeklyWorkload: {
-            equals: weeklyWorkload,
-          },
+        orderBy: orderByCriteria,
+        include: {
+          student: true,
+          job: true,
         },
-      },
-      orderBy: orderByCriteria,
-      include: {
-        student: true,
-        job: true,
-      },
-    });
+      });
+
+    return { internships, count: count.id };
   }
 
   async getInternshipById(

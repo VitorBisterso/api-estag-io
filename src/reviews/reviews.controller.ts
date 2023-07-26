@@ -53,10 +53,10 @@ export class ReviewsController {
         isCompany ? 'COMPANY' : 'USER',
         user.id,
       )
-      .then((reviews) =>
+      .then(({ reviews, count }) =>
         res
           .set({
-            'Content-Range': reviews.length,
+            'Content-Range': count,
           })
           .json({ reviews }),
       );

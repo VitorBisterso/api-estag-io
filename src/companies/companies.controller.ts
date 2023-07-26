@@ -45,10 +45,10 @@ export class CompaniesController {
   ) {
     return this.companiesService
       .getCompanies(filter, user)
-      .then((companies) =>
+      .then(({ companies, count }) =>
         res
           .set({
-            'Content-Range': companies.length,
+            'Content-Range': count,
           })
           .json({ companies }),
       );
