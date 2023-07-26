@@ -6,6 +6,7 @@ import {
   IsDateString,
   IsMobilePhone,
 } from 'class-validator';
+import { JwtPayload } from 'jwt-decode';
 import {
   getDateStringMessage,
   getRequiredMessage,
@@ -162,35 +163,17 @@ export class SignInResponse {
   refreshToken: string;
 }
 
-export class RefreshDto {
-  @ApiProperty({
-    example: 'email@email.com',
-    description: 'The user email',
-  })
-  @IsEmail(undefined, {
-    message: 'Email inválido',
-  })
-  @IsNotEmpty({
-    message: getRequiredMessage('email'),
-  })
-  email: string;
-
-  @ApiProperty({
-    example: 'USER | COMPANY',
-    description: 'The user type',
-  })
-  @IsString({
-    message: getStringMessage('userType'),
-  })
-  @IsNotEmpty({
-    message: getRequiredMessage('userType'),
-  })
-  userType: USER_TYPE;
-}
-
 export class AccessTokenResponse {
   @ApiProperty({
     description: 'The access token',
   })
   accessToken: string;
+}
+
+export interface Token extends JwtPayload {
+  email: string;
+  exp: number;
+  iat: number;
+  sub: string;
+  userType: USER_TYPE;
 }

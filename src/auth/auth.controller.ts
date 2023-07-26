@@ -18,7 +18,6 @@ import {
   AuthSignInDto,
   AuthCompanyDto,
   SignInResponse,
-  RefreshDto,
   AccessTokenResponse,
 } from './dto';
 import { RefreshTokenGuard } from './guard';
@@ -73,16 +72,12 @@ export class AuthController {
   })
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  refreshTokens(
-    @Req() req: Request,
-    @Body()
-    dto: RefreshDto,
-  ) {
+  refreshTokens(@Req() req: Request) {
     const { refreshToken } = (
       req as Record<any, any>
     ).user;
+
     return this.authService.refreshToken(
-      dto,
       refreshToken,
     );
   }

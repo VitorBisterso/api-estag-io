@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma } from '@prisma/client';
 import * as argon from 'argon2';
+import jwtDecode from 'jwt-decode';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   AuthUserDto,
@@ -15,7 +16,7 @@ import {
   USER_TYPE,
   AuthCompanyDto,
   SignInResponse,
-  RefreshDto,
+  Token,
 } from './dto';
 import {
   DEFAULT_RATING,
@@ -203,10 +204,7 @@ export class AuthService {
     return token;
   }
 
-  async refreshToken(
-    dto: RefreshDto,
-    refreshToken: string,
-  ) {
+  async refreshToken(refreshToken: string) {
     const valid = await this.jwt.verifyAsync(
       refreshToken,
       {
@@ -216,7 +214,9 @@ export class AuthService {
       },
     );
 
-    const { userType } = dto;
+    const decoded =
+      jwtDecode<Token>(refreshToken);
+    const { email, userType } = decoded;
     if (!valid || valid.userType !== userType)
       throw new BadRequestException(
         'Token inválido',
@@ -226,14 +226,14 @@ export class AuthService {
     if (userType === 'USER') {
       user = await this.prisma.user.findUnique({
         where: {
-          email: dto.email,
+          email,
         },
       });
     } else {
       user = await this.prisma.company.findUnique(
         {
           where: {
-            email: dto.email,
+            email,
           },
         },
       );
@@ -246,7 +246,7 @@ export class AuthService {
 
     if (!user)
       throw new NotFoundException(
-        getNotFoundMessage('Usuário', dto.email),
+        getNotFoundMessage('Usuário', email),
       );
 
     return {
