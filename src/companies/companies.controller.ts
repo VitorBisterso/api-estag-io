@@ -29,7 +29,7 @@ export class CompaniesController {
     private companiesService: CompaniesService,
   ) {}
 
-  @ApiOperation({ summary: 'Get opportunities' })
+  @ApiOperation({ summary: 'Get companies' })
   @ApiResponse({
     status: HttpStatus.OK,
     description:
