@@ -36,6 +36,8 @@ export class OpportunitiesService {
     opportunities: Array<any>;
     count: number;
   }> {
+    const isCompany = userType === 'COMPANY';
+
     const {
       page,
       size,
@@ -59,11 +61,10 @@ export class OpportunitiesService {
         equals: weeklyWorkload,
       },
       isActive: {
-        equals: isActive,
+        equals: isCompany ? isActive : true,
       },
     };
 
-    const isCompany = userType === 'COMPANY';
     if (isCompany) {
       filters = {
         ...filters,
@@ -157,13 +158,20 @@ export class OpportunitiesService {
         },
       });
 
+    const notFoundMessage = getNotFoundMessage(
+      'Vaga',
+      'id',
+      opportunityId.toString(),
+    );
+
     if (!opportunity)
       throw new NotFoundException(
-        getNotFoundMessage(
-          'Vaga',
-          'id',
-          opportunityId.toString(),
-        ),
+        notFoundMessage,
+      );
+
+    if (!isCompany && !opportunity.isActive)
+      throw new NotFoundException(
+        notFoundMessage,
       );
 
     if (
@@ -348,7 +356,7 @@ export class OpportunitiesService {
         },
       });
 
-    if (!opportunity)
+    if (!opportunity || !opportunity.isActive)
       throw new NotFoundException(
         getNotFoundMessage(
           'Vaga',
