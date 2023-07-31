@@ -63,7 +63,8 @@ export class OpportunitiesService {
       },
     };
 
-    if (userType === 'COMPANY') {
+    const isCompany = userType === 'COMPANY';
+    if (isCompany) {
       filters = {
         ...filters,
         companyId: { equals: userId },
@@ -87,38 +88,46 @@ export class OpportunitiesService {
         },
         include: {
           applicants: true,
+          company: !isCompany,
         },
       });
 
-    if (userType === 'USER') {
-      let filteredOpportunities = opportunities;
-
-      if (registeredOnly) {
-        filteredOpportunities =
-          opportunities.filter((opportunity) =>
-            opportunity.applicants.some(
-              (applicant) =>
-                applicant.userId === userId,
-            ),
-          );
-      }
-
-      const withoutUnauthorizedFields =
-        filteredOpportunities.map(
-          (opportunity) => {
-            delete opportunity.isActive;
-            delete opportunity.applicants;
-            return opportunity;
-          },
-        );
-
+    if (isCompany)
       return {
-        opportunities: withoutUnauthorizedFields,
+        opportunities,
         count: count.id,
       };
+
+    let filteredOpportunities = opportunities;
+    if (registeredOnly) {
+      filteredOpportunities =
+        opportunities.filter((opportunity) =>
+          opportunity.applicants.some(
+            (applicant) =>
+              applicant.userId === userId,
+          ),
+        );
     }
 
-    return { opportunities, count: count.id };
+    const withoutUnauthorizedFields =
+      filteredOpportunities.map((opportunity) => {
+        delete opportunity.isActive;
+        delete opportunity.applicants;
+
+        const companyName =
+          opportunity.company.name;
+        delete opportunity.company;
+
+        return {
+          ...opportunity,
+          companyName,
+        };
+      });
+
+    return {
+      opportunities: withoutUnauthorizedFields,
+      count: count.id,
+    };
   }
 
   async getOpportunityById(
@@ -126,14 +135,17 @@ export class OpportunitiesService {
     userType: USER_TYPE,
     userId: number,
   ) {
+    const isCompany = userType === 'COMPANY';
+
     const opportunity =
       await this.prisma.opportunity.findUnique({
         where: {
           id: opportunityId,
         },
         include: {
-          applicants: userType === 'COMPANY',
+          applicants: isCompany,
           processSteps: true,
+          company: !isCompany,
         },
       });
 
@@ -147,14 +159,16 @@ export class OpportunitiesService {
       );
 
     if (
-      userType === 'COMPANY' &&
+      isCompany &&
       opportunity.companyId !== userId
     )
       throw new ForbiddenException(
         getForbiddenMessage(),
       );
 
-    return opportunity;
+    const companyName = opportunity.company.name;
+    delete opportunity.company;
+    return { ...opportunity, companyName };
   }
 
   async createOpportunity(

@@ -58,6 +58,18 @@ export class OpportunityDto {
   type: OPPORTUNITY_TYPE;
 
   @ApiProperty({
+    description: 'The company name',
+    example: 'Sensedia',
+  })
+  @IsString({
+    message: getStringMessage('companyName'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('companyName'),
+  })
+  companyName: string;
+
+  @ApiProperty({
     description: 'The opportunity salary',
     example: '2000,00',
   })
