@@ -118,6 +118,7 @@ export class InternshipsService {
       throw new NotFoundException(
         getNotFoundMessage(
           'Estágio',
+          'id',
           internshipId.toString(),
         ),
       );
@@ -136,6 +137,7 @@ export class InternshipsService {
       throw new NotFoundException(
         getNotFoundMessage(
           'Estágio',
+          'id',
           internshipId.toString(),
         ),
       );
@@ -213,6 +215,7 @@ export class InternshipsService {
       throw new NotFoundException(
         getNotFoundMessage(
           'Estudante',
+          'id',
           internship.studentId.toString(),
         ),
       );
@@ -231,6 +234,7 @@ export class InternshipsService {
       throw new NotFoundException(
         getNotFoundMessage(
           'Vaga',
+          'id',
           internship.jobId.toString(),
         ),
       );
@@ -278,6 +282,7 @@ export class InternshipsService {
       throw new NotFoundException(
         getNotFoundMessage(
           'Estágio',
+          'id',
           internshipId.toString(),
         ),
       );
@@ -323,6 +328,7 @@ export class InternshipsService {
         throw new NotFoundException(
           getNotFoundMessage(
             'Vaga',
+            'id',
             internship.jobId.toString(),
           ),
         );
@@ -385,6 +391,7 @@ export class InternshipsService {
           throw new NotFoundException(
             getNotFoundMessage(
               'Vaga',
+              'id',
               id.toString(),
             ),
           );

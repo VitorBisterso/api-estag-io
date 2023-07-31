@@ -51,6 +51,7 @@ export class ProcessStepsService {
           throw new NotFoundException(
             getNotFoundMessage(
               'Vaga',
+              'id',
               opportunityId.toString(),
             ),
           );
@@ -101,6 +102,7 @@ export class ProcessStepsService {
       throw new NotFoundException(
         getNotFoundMessage(
           'Vaga',
+          'id',
           opportunityId.toString(),
         ),
       );
@@ -128,6 +130,7 @@ export class ProcessStepsService {
                   throw new NotFoundException(
                     getNotFoundMessage(
                       'Estudante',
+                      'id',
                       applicantId.toString(),
                     ),
                   );
@@ -193,6 +196,7 @@ export class ProcessStepsService {
       throw new NotFoundException(
         getNotFoundMessage(
           'Vaga',
+          'id',
           opportunityId.toString(),
         ),
       );
@@ -226,6 +230,7 @@ export class ProcessStepsService {
           throw new NotFoundException(
             getNotFoundMessage(
               'Passo',
+              'id',
               id.toString(),
             ),
           );
@@ -276,6 +281,7 @@ export class ProcessStepsService {
                   throw new NotFoundException(
                     getNotFoundMessage(
                       'Usuário',
+                      'id',
                       applicantId.toString(),
                     ),
                   );
@@ -340,6 +346,7 @@ export class ProcessStepsService {
       throw new NotFoundException(
         getNotFoundMessage(
           'Passo',
+          'id',
           processStepId.toString(),
         ),
       );

@@ -86,6 +86,7 @@ export class CompaniesService {
       throw new NotFoundException(
         getNotFoundMessage(
           'Empresa',
+          'id',
           companyId.toString(),
         ),
       );

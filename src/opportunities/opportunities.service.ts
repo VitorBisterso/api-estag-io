@@ -141,6 +141,7 @@ export class OpportunitiesService {
       throw new NotFoundException(
         getNotFoundMessage(
           'Vaga',
+          'id',
           opportunityId.toString(),
         ),
       );
@@ -229,6 +230,7 @@ export class OpportunitiesService {
           throw new NotFoundException(
             getNotFoundMessage(
               'Vaga',
+              'id',
               id.toString(),
             ),
           );
@@ -274,6 +276,7 @@ export class OpportunitiesService {
           throw new NotFoundException(
             getNotFoundMessage(
               'Vaga',
+              'id',
               id.toString(),
             ),
           );
@@ -314,6 +317,7 @@ export class OpportunitiesService {
       throw new NotFoundException(
         getNotFoundMessage(
           'Vaga',
+          'id',
           opportunityId.toString(),
         ),
       );

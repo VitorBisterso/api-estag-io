@@ -21,9 +21,10 @@ export function getForbiddenMessage() {
 export function getNotFoundMessage(
   object: string,
   key?: string,
+  value?: string | number,
 ) {
   if (key)
-    return `${object} com o ${key} não foi encontrado`;
+    return `${object} com o ${key} ${value} não foi encontrado`;
 
   return `${object} não foi encontrado`;
 }

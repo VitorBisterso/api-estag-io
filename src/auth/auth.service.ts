@@ -246,7 +246,11 @@ export class AuthService {
 
     if (!user)
       throw new NotFoundException(
-        getNotFoundMessage('Usuário', email),
+        getNotFoundMessage(
+          'Usuário',
+          'email',
+          email,
+        ),
       );
 
     return {

@@ -93,6 +93,7 @@ export class ReviewsService {
       throw new NotFoundException(
         getNotFoundMessage(
           'Empresa',
+          'id',
           review.companyId.toString(),
         ),
       );
