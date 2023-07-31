@@ -58,7 +58,8 @@ export class OpportunityDto {
   type: OPPORTUNITY_TYPE;
 
   @ApiProperty({
-    description: 'The company name',
+    description:
+      'The company name (only for students)',
     example: 'Sensedia',
   })
   @IsString({
@@ -68,6 +69,17 @@ export class OpportunityDto {
     message: getRequiredMessage('companyName'),
   })
   companyName: string;
+
+  @ApiProperty({
+    description:
+      'If the user is applied to the opportunity (only for students)',
+    example: true,
+  })
+  @IsBoolean()
+  @IsNotEmpty({
+    message: getRequiredMessage('applied'),
+  })
+  applied: boolean;
 
   @ApiProperty({
     description: 'The opportunity salary',
@@ -105,7 +117,7 @@ export class OpportunityDto {
 
   @ApiProperty({
     description:
-      'If the opportunity is visible to students',
+      'If the opportunity is visible to students (only for companies)',
     example: true,
   })
   @IsBoolean()

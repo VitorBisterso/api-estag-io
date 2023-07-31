@@ -143,7 +143,15 @@ export class OpportunitiesService {
           id: opportunityId,
         },
         include: {
-          applicants: isCompany,
+          applicants: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
           processSteps: true,
           company: !isCompany,
         },
@@ -166,9 +174,22 @@ export class OpportunitiesService {
         getForbiddenMessage(),
       );
 
-    const companyName = opportunity.company.name;
+    if (isCompany) return opportunity;
+
+    const companyName = opportunity.company?.name;
     delete opportunity.company;
-    return { ...opportunity, companyName };
+
+    const isApplied = opportunity.applicants
+      .map((applicant) => applicant.userId)
+      .includes(userId);
+
+    delete opportunity.isActive;
+    delete opportunity.applicants;
+    return {
+      ...opportunity,
+      companyName,
+      applied: isApplied,
+    };
   }
 
   async createOpportunity(
