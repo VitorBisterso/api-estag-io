@@ -65,9 +65,7 @@ export class OpportunityDto {
   @IsString({
     message: getStringMessage('companyName'),
   })
-  @IsNotEmpty({
-    message: getRequiredMessage('companyName'),
-  })
+  @IsOptional()
   companyName: string;
 
   @ApiProperty({
@@ -76,9 +74,7 @@ export class OpportunityDto {
     example: true,
   })
   @IsBoolean()
-  @IsNotEmpty({
-    message: getRequiredMessage('applied'),
-  })
+  @IsOptional()
   applied: boolean;
 
   @ApiProperty({
