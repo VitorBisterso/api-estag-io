@@ -4,6 +4,7 @@ import {
   IsBoolean,
   IsCurrency,
   IsDateString,
+  IsDecimal,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -81,7 +82,7 @@ export class OpportunityDto {
     description: 'The opportunity salary',
     example: '2000,00',
   })
-  @IsCurrency()
+  @IsDecimal()
   @IsNotEmpty({
     message: getRequiredMessage('salary'),
   })
