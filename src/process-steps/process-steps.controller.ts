@@ -61,6 +61,12 @@ export class ProcessStepsController {
   @ApiOperation({
     summary: 'Create some process steps',
   })
+  @ApiBody({
+    description:
+      'The process step data to create',
+    type: CreateProcessStepDto,
+    isArray: true,
+  })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Created process steps',
