@@ -148,12 +148,12 @@ export class OpportunitiesService {
             include: {
               user: {
                 select: {
+                  id: true,
                   name: true,
                 },
               },
             },
           },
-          processSteps: true,
           company: !isCompany,
         },
       });
@@ -178,11 +178,15 @@ export class OpportunitiesService {
       isCompany &&
       opportunity.companyId !== userId
     )
-      throw new ForbiddenException(
-        getForbiddenMessage(),
+      throw new NotFoundException(
+        notFoundMessage,
       );
 
-    if (isCompany) return opportunity;
+    const applicants = opportunity.applicants.map(
+      (applicant) => applicant.user,
+    );
+    if (isCompany)
+      return { ...opportunity, applicants };
 
     const companyName = opportunity.company?.name;
     delete opportunity.company;
@@ -195,6 +199,7 @@ export class OpportunitiesService {
     delete opportunity.applicants;
     return {
       ...opportunity,
+      applicants,
       companyName,
       applied: isApplied,
     };
