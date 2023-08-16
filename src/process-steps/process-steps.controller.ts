@@ -59,18 +59,16 @@ export class ProcessStepsController {
   }
 
   @ApiOperation({
-    summary: 'Create some process steps',
+    summary: 'Create a process step',
   })
   @ApiBody({
     description:
       'The process step data to create',
     type: CreateProcessStepDto,
-    isArray: true,
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Created process steps',
-    isArray: true,
+    description: 'Created process step',
     type: CreateProcessStepDto,
   })
   @Post('opportunity/:id')
@@ -78,12 +76,12 @@ export class ProcessStepsController {
     @Param('id', ParseIntPipe)
     opportunityId: number,
     @Body()
-    processSteps: Array<CreateProcessStepDto>,
+    processStep: CreateProcessStepDto,
     @GetUser() user: Record<string, any>,
   ) {
     return this.processStepsService.createProcessStep(
       opportunityId,
-      processSteps,
+      processStep,
       user,
     );
   }

@@ -126,10 +126,16 @@ export class CreateProcessStepDto {
     isArray: true,
   })
   @IsArray()
-  @IsNotEmpty({
-    message: getRequiredMessage('applicants'),
+  @IsOptional()
+  applicants: Array<number> = [];
+
+  @ApiProperty({
+    description:
+      'If every opportunity applicant will participate in this step',
   })
-  applicants: Array<number>;
+  @IsBoolean()
+  @IsOptional()
+  everyone = true;
 }
 
 export class UpdateProcessStepDto {

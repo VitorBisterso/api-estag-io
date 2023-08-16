@@ -65,25 +65,21 @@ export class ProcessStepsService {
         opportunityId,
       },
       include: {
-        applicants: true,
+        applicants: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
   }
 
   async createProcessStep(
     opportunityId: number,
-    processSteps: Array<CreateProcessStepDto>,
+    processStep: CreateProcessStepDto,
     user: Record<string, any>,
   ) {
-    if (
-      !processSteps ||
-      !Array.isArray(processSteps) ||
-      processSteps.length <= 0
-    )
-      throw new UnprocessableEntityException(
-        'Envie as informações dos passos para criá-los',
-      );
-
     const isCompany = isUserACompany(user);
 
     if (!isCompany)
@@ -96,6 +92,9 @@ export class ProcessStepsService {
         where: {
           id: opportunityId,
         },
+        include: {
+          applicants: true,
+        },
       });
 
     if (!opportunity)
@@ -107,60 +106,58 @@ export class ProcessStepsService {
         ),
       );
 
-    const steps = await Promise.all(
-      processSteps.map(async (processStep) => {
-        const { applicants: applicantsIds } =
-          processStep;
+    let { applicants: applicantsIds } =
+      processStep;
 
-        let applicants: User[];
-        if (applicantsIds) {
-          applicants = await Promise.all(
-            applicantsIds.map(
-              async (applicantId) => {
-                const user =
-                  await this.prisma.user.findUnique(
-                    {
-                      where: {
-                        id: applicantId,
-                      },
-                    },
-                  );
+    if (processStep.everyone) {
+      applicantsIds = opportunity.applicants.map(
+        (applicant) => applicant.userId,
+      );
+    }
 
-                if (!user)
-                  throw new NotFoundException(
-                    getNotFoundMessage(
-                      'Estudante',
-                      'id',
-                      applicantId.toString(),
-                    ),
-                  );
-
-                return user;
+    if (applicantsIds) {
+      await Promise.all(
+        applicantsIds.map(async (applicantId) => {
+          const user =
+            await this.prisma.user.findUnique({
+              where: {
+                id: applicantId,
               },
-            ),
-          );
-        }
+            });
 
-        if (
-          !isDeadlineValid(processStep.deadline)
-        )
-          throw new UnprocessableEntityException(
-            getDeadlineDateMessage(),
-          );
+          if (!user)
+            throw new NotFoundException(
+              getNotFoundMessage(
+                'Estudante',
+                'id',
+                applicantId.toString(),
+              ),
+            );
 
-        return {
-          ...processStep,
-          opportunityId,
-          deadline: new Date(
-            processStep.deadline,
-          ),
-          applicants,
-        };
-      }),
-    );
+          return user;
+        }),
+      );
+    }
 
-    await this.prisma.processStep.createMany({
-      data: steps,
+    if (!isDeadlineValid(processStep.deadline))
+      throw new UnprocessableEntityException(
+        getDeadlineDateMessage(),
+      );
+
+    delete processStep.everyone;
+    delete processStep.applicants;
+
+    await this.prisma.processStep.create({
+      data: {
+        ...processStep,
+        opportunityId,
+        deadline: new Date(processStep.deadline),
+        applicants: {
+          connect: applicantsIds.map((id) => ({
+            id,
+          })),
+        },
+      },
     });
   }
 
