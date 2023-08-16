@@ -4,7 +4,6 @@ import {
   IsBoolean,
   IsDateString,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -132,6 +131,7 @@ export class CreateProcessStepDto {
   @ApiProperty({
     description:
       'If every opportunity applicant will participate in this step',
+    example: true,
   })
   @IsBoolean()
   @IsOptional()
@@ -139,16 +139,6 @@ export class CreateProcessStepDto {
 }
 
 export class UpdateProcessStepDto {
-  @ApiProperty({
-    description: 'The process step id',
-    example: 1,
-  })
-  @IsNumber()
-  @IsNotEmpty({
-    message: getRequiredMessage('id'),
-  })
-  id: number;
-
   @ApiProperty({
     description: 'The process step title',
     example: 'Entrevista com RH',

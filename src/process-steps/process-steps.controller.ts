@@ -93,26 +93,24 @@ export class ProcessStepsController {
     description:
       'The process step data to update (all properties are optional)',
     type: UpdateProcessStepDto,
-    isArray: true,
   })
   @ApiResponse({
     status: HttpStatus.OK,
     description:
       'Process step updated successfully',
     type: UpdateProcessStepDto,
-    isArray: true,
   })
-  @Put('opportunity/:id')
+  @Put(':id')
   updateOpportunity(
     @Param('id', ParseIntPipe)
-    opportunityId: number,
+    processStepId: number,
     @Body()
-    processSteps: Array<UpdateProcessStepDto>,
+    processStep: UpdateProcessStepDto,
     @GetUser() user: Record<string, any>,
   ) {
     return this.processStepsService.updateProcessSteps(
-      opportunityId,
-      processSteps,
+      processStepId,
+      processStep,
       user,
     );
   }

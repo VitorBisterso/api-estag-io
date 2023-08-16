@@ -4,7 +4,7 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { isUserACompany } from 'src/opportunities/helpers';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
@@ -162,19 +162,10 @@ export class ProcessStepsService {
   }
 
   async updateProcessSteps(
-    opportunityId: number,
-    processSteps: Array<UpdateProcessStepDto>,
+    processStepId: number,
+    processStep: UpdateProcessStepDto,
     user: Record<string, any>,
   ) {
-    if (
-      !processSteps ||
-      !Array.isArray(processSteps) ||
-      processSteps.length <= 0
-    )
-      throw new UnprocessableEntityException(
-        'Envie as informações dos passos para atualizá-los',
-      );
-
     const isCompany = isUserACompany(user);
 
     if (!isCompany)
@@ -182,143 +173,100 @@ export class ProcessStepsService {
         getForbiddenMessage(),
       );
 
-    const opportunity =
-      await this.prisma.opportunity.findUnique({
+    const { newApplicants, removedApplicants } =
+      processStep;
+
+    const step =
+      await this.prisma.processStep.findUnique({
         where: {
-          id: opportunityId,
+          id: processStepId,
+        },
+        include: {
+          applicants: true,
         },
       });
 
-    if (!opportunity)
+    if (!step)
       throw new NotFoundException(
         getNotFoundMessage(
-          'Vaga',
+          'Passo',
           'id',
-          opportunityId.toString(),
+          processStepId.toString(),
         ),
       );
 
-    const steps = await Promise.all(
-      processSteps.map(async (processStep) => {
-        const {
-          id,
-          newApplicants,
-          removedApplicants,
-        } = processStep;
+    if (
+      processStep.deadline &&
+      !isDeadlineValid(processStep.deadline)
+    )
+      throw new UnprocessableEntityException(
+        getDeadlineDateMessage(),
+      );
 
-        if (!id)
-          throw new UnprocessableEntityException(
-            'Envie o ids de cada passo',
+    delete step.opportunityId;
+    const newDeadline = processStep.deadline
+      ? new Date(processStep.deadline)
+      : step.deadline;
+
+    if (removedApplicants) {
+      removedApplicants.forEach((applicantId) => {
+        const applicantIndex =
+          step.applicants.findIndex(
+            (applicant) =>
+              applicant.id === applicantId,
           );
+        step.applicants.splice(applicantIndex, 1);
+      });
+    }
 
-        const step =
-          await this.prisma.processStep.findUnique(
-            {
+    if (newApplicants) {
+      await Promise.all(
+        newApplicants.map(async (applicantId) => {
+          const user =
+            await this.prisma.user.findUnique({
               where: {
-                id,
+                id: applicantId,
               },
-              include: {
-                applicants: true,
-              },
-            },
-          );
+            });
 
-        if (!step)
-          throw new NotFoundException(
-            getNotFoundMessage(
-              'Passo',
-              'id',
-              id.toString(),
-            ),
-          );
+          if (!user)
+            throw new NotFoundException(
+              getNotFoundMessage(
+                'Usuário',
+                'id',
+                applicantId.toString(),
+              ),
+            );
 
-        if (
-          processStep.deadline &&
-          !isDeadlineValid(processStep.deadline)
-        )
-          throw new UnprocessableEntityException(
-            getDeadlineDateMessage(),
-          );
+          step.applicants.push(user);
+        }),
+      );
+    }
 
-        delete step.opportunityId;
-        const newDeadline = processStep.deadline
-          ? new Date(processStep.deadline)
-          : step.deadline;
+    const updatedStep = {
+      ...processStep,
+      applicants: step.applicants,
+      deadline: newDeadline,
+    };
 
-        if (removedApplicants) {
-          removedApplicants.forEach(
-            (applicantId) => {
-              const applicantIndex =
-                step.applicants.findIndex(
-                  (applicant) =>
-                    applicant.id === applicantId,
-                );
-              step.applicants.splice(
-                applicantIndex,
-                1,
-              );
-            },
-          );
-        }
+    delete processStep.removedApplicants;
+    delete processStep.newApplicants;
 
-        if (newApplicants) {
-          await Promise.all(
-            newApplicants.map(
-              async (applicantId) => {
-                const user =
-                  await this.prisma.user.findUnique(
-                    {
-                      where: {
-                        id: applicantId,
-                      },
-                    },
-                  );
-
-                if (!user)
-                  throw new NotFoundException(
-                    getNotFoundMessage(
-                      'Usuário',
-                      'id',
-                      applicantId.toString(),
-                    ),
-                  );
-
-                step.applicants.push(user);
-              },
-            ),
-          );
-        }
-
-        delete processStep.removedApplicants;
-        delete processStep.newApplicants;
-
-        return {
-          ...processStep,
-          applicants: step.applicants,
-          deadline: newDeadline,
-        };
-      }),
-    );
-
-    const operations = steps.map((step) =>
-      this.prisma.processStep.update({
-        where: {
-          id: step.id,
+    return this.prisma.processStep.update({
+      where: {
+        id: step.id,
+      },
+      data: {
+        ...updatedStep,
+        applicants: {
+          set: step.applicants.map(
+            (applicant) => ({
+              id: applicant.id,
+            }),
+          ),
         },
-        data: {
-          ...step,
-          applicants: {
-            set: step.applicants.map(
-              (applicant) => ({
-                id: applicant.id,
-              }),
-            ),
-          },
-        },
-      }),
-    );
-
-    return this.prisma.$transaction(operations);
+      },
+    });
   }
 
   async deleteProcessStep(
