@@ -173,9 +173,6 @@ export class ProcessStepsService {
         getForbiddenMessage(),
       );
 
-    const { newApplicants, removedApplicants } =
-      processStep;
-
     const step =
       await this.prisma.processStep.findUnique({
         where: {
@@ -203,66 +200,29 @@ export class ProcessStepsService {
         getDeadlineDateMessage(),
       );
 
-    delete step.opportunityId;
     const newDeadline = processStep.deadline
       ? new Date(processStep.deadline)
       : step.deadline;
 
-    if (removedApplicants) {
-      removedApplicants.forEach((applicantId) => {
-        const applicantIndex =
-          step.applicants.findIndex(
-            (applicant) =>
-              applicant.id === applicantId,
-          );
-        step.applicants.splice(applicantIndex, 1);
-      });
-    }
-
-    if (newApplicants) {
-      await Promise.all(
-        newApplicants.map(async (applicantId) => {
-          const user =
-            await this.prisma.user.findUnique({
-              where: {
-                id: applicantId,
-              },
-            });
-
-          if (!user)
-            throw new NotFoundException(
-              getNotFoundMessage(
-                'Usuário',
-                'id',
-                applicantId.toString(),
-              ),
-            );
-
-          step.applicants.push(user);
-        }),
-      );
-    }
-
-    const updatedStep = {
-      ...processStep,
-      applicants: step.applicants,
-      deadline: newDeadline,
-    };
-
-    delete processStep.removedApplicants;
-    delete processStep.newApplicants;
+    const { newApplicants, removedApplicants } =
+      processStep;
 
     return this.prisma.processStep.update({
       where: {
-        id: step.id,
+        id: processStepId,
       },
       data: {
-        ...updatedStep,
+        title: processStep.title,
+        description: processStep.description,
+        deadline: newDeadline,
+        onlyOnDeadline:
+          processStep.onlyOnDeadline,
         applicants: {
-          set: step.applicants.map(
-            (applicant) => ({
-              id: applicant.id,
-            }),
+          connect: newApplicants.map((id) => ({
+            id,
+          })),
+          disconnect: removedApplicants.map(
+            (id) => ({ id }),
           ),
         },
       },
