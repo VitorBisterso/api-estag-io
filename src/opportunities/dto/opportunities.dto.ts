@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,
-  IsCurrency,
   IsDateString,
   IsDecimal,
   IsNotEmpty,
@@ -76,7 +75,7 @@ export class OpportunityDto {
   })
   @IsBoolean()
   @IsOptional()
-  applied: boolean;
+  isApplied: boolean;
 
   @ApiProperty({
     description: 'The opportunity salary',

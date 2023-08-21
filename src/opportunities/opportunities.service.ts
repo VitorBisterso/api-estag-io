@@ -199,9 +199,8 @@ export class OpportunitiesService {
     delete opportunity.applicants;
     return {
       ...opportunity,
-      applicants,
       companyName,
-      applied: isApplied,
+      isApplied,
     };
   }
 

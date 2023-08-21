@@ -4,7 +4,6 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { isUserACompany } from 'src/opportunities/helpers';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
@@ -26,14 +25,7 @@ export class ProcessStepsService {
     opportunityId: number,
     user: Record<string, any>,
   ) {
-    const isCompany = isUserACompany(user);
-
-    if (!isCompany)
-      throw new ForbiddenException(
-        getForbiddenMessage(),
-      );
-
-    try {
+    const opportunity =
       await this.prisma.opportunity.findUniqueOrThrow(
         {
           where: {
@@ -41,24 +33,57 @@ export class ProcessStepsService {
           },
         },
       );
-    } catch (error) {
-      if (
-        error instanceof
-        Prisma.PrismaClientKnownRequestError
-      ) {
-        console.log('err', error);
-        if (error.code === 'P2025') {
-          throw new NotFoundException(
-            getNotFoundMessage(
-              'Vaga',
-              'id',
-              opportunityId.toString(),
-            ),
-          );
-        }
-      }
-      throw error;
+
+    if (!opportunity)
+      throw new NotFoundException(
+        getNotFoundMessage(
+          'Vaga',
+          'id',
+          opportunityId.toString(),
+        ),
+      );
+
+    const isCompany = isUserACompany(user);
+    if (!isCompany) {
+      const steps =
+        await this.prisma.processStep.findMany({
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            deadline: true,
+            onlyOnDeadline: true,
+            applicants: {
+              select: {
+                id: true,
+              },
+            },
+          },
+          where: {
+            opportunityId,
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        });
+
+      return steps.map((step) => ({
+        ...step,
+        applicants: undefined,
+        isApplied: step.applicants.some(
+          (applicant) => applicant.id,
+        ),
+      }));
     }
+
+    if (opportunity.companyId !== user.id)
+      throw new NotFoundException(
+        getNotFoundMessage(
+          'Vaga',
+          'id',
+          opportunityId.toString(),
+        ),
+      );
 
     return this.prisma.processStep.findMany({
       where: {
@@ -71,6 +96,9 @@ export class ProcessStepsService {
             name: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: 'asc',
       },
     });
   }
