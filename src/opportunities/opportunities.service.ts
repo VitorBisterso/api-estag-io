@@ -131,6 +131,25 @@ export class OpportunitiesService {
     };
   }
 
+  async getSimplifiedOpportunities(
+    user: Record<string, any>,
+  ) {
+    if (!isUserACompany(user))
+      throw new ForbiddenException(
+        getForbiddenMessage(),
+      );
+
+    return this.prisma.opportunity.findMany({
+      where: {
+        companyId: user.id,
+      },
+      select: {
+        id: true,
+        title: true,
+      },
+    });
+  }
+
   async getOpportunityById(
     opportunityId: number,
     userType: USER_TYPE,

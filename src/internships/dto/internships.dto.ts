@@ -84,7 +84,7 @@ export class InternshipDto {
 export class InternshipFilterDto extends Paginated<InternshipDto> {
   @ApiProperty({
     description: "The intern's name",
-    example: 'Rafael Veiga',
+    example: 'Raphael Veiga',
     required: false,
   })
   @IsString({

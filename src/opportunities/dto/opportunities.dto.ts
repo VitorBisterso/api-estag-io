@@ -123,6 +123,24 @@ export class OpportunityDto {
   isActive: boolean;
 }
 
+export class SimplifiedOpportunityDto {
+  @ApiProperty({
+    description: 'The opportunity id',
+    example: 1,
+  })
+  @IsNumber()
+  id: number;
+
+  @ApiProperty({
+    description: 'The opportunity title',
+    example: 'Vaga de estágio de desenvolvimento',
+  })
+  @IsString({
+    message: getStringMessage('title'),
+  })
+  title: string;
+}
+
 export class OpportunityFilterDto extends Paginated<OpportunityDto> {
   @ApiProperty({
     description: 'The opportunity title',

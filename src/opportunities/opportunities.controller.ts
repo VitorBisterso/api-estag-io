@@ -23,6 +23,7 @@ import { JwtGuard } from 'src/auth/guard';
 import {
   OpportunityDto,
   OpportunityFilterDto,
+  SimplifiedOpportunityDto,
 } from './dto';
 import { OpportunitiesService } from './opportunities.service';
 import { GetUser } from 'src/auth/decorator';
@@ -65,6 +66,25 @@ export class OpportunitiesController {
           })
           .json({ opportunities }),
       );
+  }
+
+  @ApiOperation({
+    summary: 'Get simplified opportunities',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description:
+      'Return simplified opportunities from the current company',
+    type: SimplifiedOpportunityDto,
+    isArray: true,
+  })
+  @Get('simplified')
+  getSimplifiedOpportunities(
+    @GetUser() user: Record<string, any>,
+  ) {
+    return this.opportunitiesService.getSimplifiedOpportunities(
+      user,
+    );
   }
 
   @ApiOperation({
