@@ -61,6 +61,18 @@ export class InternshipDto {
   managerName: string;
 
   @ApiProperty({
+    description: "The intern advisor's name",
+    example: 'Eduardo Pereira Rodrigues',
+  })
+  @IsString({
+    message: getStringMessage('advisorName'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('advisorName'),
+  })
+  advisorName: string;
+
+  @ApiProperty({
     description: 'The student',
     type: AuthUserDto,
   })
@@ -154,6 +166,18 @@ export class CreateInternshipDto {
   managerName: string;
 
   @ApiProperty({
+    description: "The intern advisor's name",
+    example: 'Eduardo Pereira Rodrigues',
+  })
+  @IsString({
+    message: getStringMessage('advisorName'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('advisorName'),
+  })
+  advisorName: string;
+
+  @ApiProperty({
     description: 'The student id',
     example: 1,
   })
@@ -205,6 +229,16 @@ export class UpdateInternshipDto {
   })
   @IsOptional()
   managerName?: string;
+
+  @ApiProperty({
+    description: "The intern advisor's name",
+    example: 'Eduardo Pereira Rodrigues',
+  })
+  @IsString({
+    message: getStringMessage('advisorName'),
+  })
+  @IsOptional()
+  advisorName?: string;
 
   @ApiProperty({
     description: 'The opportunity id',

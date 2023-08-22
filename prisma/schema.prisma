@@ -140,6 +140,7 @@ model Internship {
   initialDate DateTime
   until       DateTime
   managerName String
+  advisorName String
 
   studentId Int  @unique
   student   User @relation(fields: [studentId], references: [id])
