@@ -108,9 +108,30 @@ export class InternshipsService {
         where: {
           id: internshipId,
         },
-        include: {
-          student: true,
-          job: true,
+        select: {
+          initialDate: true,
+          until: true,
+          managerName: true,
+          student: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          job: {
+            select: {
+              id: true,
+              title: true,
+              type: true,
+              company: {
+                select: {
+                  name: true,
+                },
+              },
+              salary: true,
+              weeklyWorkload: true,
+            },
+          },
         },
       });
 
@@ -126,7 +147,7 @@ export class InternshipsService {
     const opportunity =
       await this.prisma.opportunity.findUnique({
         where: {
-          id: internship.jobId,
+          id: internship.job.id,
         },
       });
 
@@ -153,19 +174,29 @@ export class InternshipsService {
         getForbiddenMessage(),
       );
 
-    const internship =
-      await this.prisma.internship.findUnique({
-        where: {
-          studentId: user.id,
+    return this.prisma.internship.findUnique({
+      where: {
+        studentId: user.id,
+      },
+      select: {
+        initialDate: true,
+        until: true,
+        managerName: true,
+        job: {
+          select: {
+            title: true,
+            type: true,
+            company: {
+              select: {
+                name: true,
+              },
+            },
+            salary: true,
+            weeklyWorkload: true,
+          },
         },
-        include: {
-          job: true,
-        },
-      });
-
-    if (!internship) return {};
-
-    return internship;
+      },
+    });
   }
 
   async createInternship(
