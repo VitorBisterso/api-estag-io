@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsDateString,
   IsDecimal,
@@ -139,6 +140,12 @@ export class SimplifiedOpportunityDto {
     message: getStringMessage('title'),
   })
   title: string;
+
+  @ApiProperty({
+    description: 'The opportunity applicants',
+  })
+  @IsArray()
+  applicants: Array<{ id: number; name: string }>;
 }
 
 export class OpportunityFilterDto extends Paginated<OpportunityDto> {

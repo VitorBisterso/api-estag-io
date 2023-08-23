@@ -139,15 +139,36 @@ export class OpportunitiesService {
         getForbiddenMessage(),
       );
 
-    return this.prisma.opportunity.findMany({
-      where: {
-        companyId: user.id,
-      },
-      select: {
-        id: true,
-        title: true,
-      },
-    });
+    const opportunities =
+      await this.prisma.opportunity.findMany({
+        where: {
+          companyId: user.id,
+        },
+        select: {
+          id: true,
+          title: true,
+          applicants: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+    return opportunities.map((opportunity) => ({
+      ...opportunity,
+      applicants: opportunity.applicants.map(
+        (applicant) => ({
+          id: applicant.user.id,
+          name: applicant.user.name,
+        }),
+      ),
+    }));
   }
 
   async getOpportunityById(
