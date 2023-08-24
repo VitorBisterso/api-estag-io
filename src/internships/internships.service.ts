@@ -109,9 +109,11 @@ export class InternshipsService {
           id: internshipId,
         },
         select: {
+          id: true,
           initialDate: true,
           until: true,
           managerName: true,
+          advisorName: true,
           student: {
             select: {
               id: true,
@@ -182,6 +184,7 @@ export class InternshipsService {
         initialDate: true,
         until: true,
         managerName: true,
+        advisorName: true,
         job: {
           select: {
             title: true,
