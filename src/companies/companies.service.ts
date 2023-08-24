@@ -88,7 +88,6 @@ export class CompaniesService {
           reviews: {
             select: {
               id: true,
-              title: true,
               description: true,
               rating: true,
               createdAt: true,

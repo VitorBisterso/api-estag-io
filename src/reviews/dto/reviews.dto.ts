@@ -21,18 +21,6 @@ import {
 
 export class ReviewDto {
   @ApiProperty({
-    description: 'The review title',
-    example: 'Minha avaliação da empresa X',
-  })
-  @IsString({
-    message: getStringMessage('title'),
-  })
-  @IsNotEmpty({
-    message: getRequiredMessage('title'),
-  })
-  title: string;
-
-  @ApiProperty({
     description: 'The review description',
     example:
       'Eu acho que o processo com essa empresa...',
@@ -82,18 +70,6 @@ export class ReviewFilterDto extends Paginated<ReviewDto> {
 }
 
 export class CreateReviewDto {
-  @ApiProperty({
-    description: 'The review title',
-    example: 'Minha avaliação da empresa X',
-  })
-  @IsString({
-    message: getStringMessage('title'),
-  })
-  @IsNotEmpty({
-    message: getRequiredMessage('title'),
-  })
-  title: string;
-
   @ApiProperty({
     description: 'The review description',
     example:

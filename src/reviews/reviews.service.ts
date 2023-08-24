@@ -62,7 +62,6 @@ export class ReviewsService {
         },
         select: {
           id: true,
-          title: true,
           description: true,
           rating: true,
           createdAt: true,
