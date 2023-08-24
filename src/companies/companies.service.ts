@@ -52,13 +52,16 @@ export class CompaniesService {
         orderBy: {
           [orderBy || 'name']: direction,
         },
+        select: {
+          id: true,
+          name: true,
+          phone: true,
+          rating: true,
+        },
       });
 
     return {
-      companies: companies.map((c) => {
-        delete c.password;
-        return c;
-      }),
+      companies,
       count: count.id,
     };
   }
@@ -77,8 +80,24 @@ export class CompaniesService {
         where: {
           id: companyId,
         },
-        include: {
-          reviews: true,
+        select: {
+          id: true,
+          name: true,
+          phone: true,
+          rating: true,
+          reviews: {
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              rating: true,
+              createdAt: true,
+            },
+            take: 5,
+            orderBy: {
+              createdAt: 'desc',
+            },
+          },
         },
       });
 
@@ -91,7 +110,18 @@ export class CompaniesService {
         ),
       );
 
-    delete company.password;
-    return company;
+    const { _count: reviewCount } =
+      await this.prisma.review.aggregate({
+        _count: {
+          id: true,
+        },
+        where: {
+          companyId: companyId,
+        },
+      });
+    return {
+      ...company,
+      reviewCount: reviewCount.id,
+    };
   }
 }

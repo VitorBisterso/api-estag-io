@@ -60,8 +60,12 @@ export class ReviewsService {
         orderBy: {
           [orderBy || 'createdAt']: direction,
         },
-        include: {
-          student: true,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          rating: true,
+          createdAt: true,
         },
       });
 
