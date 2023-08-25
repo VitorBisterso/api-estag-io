@@ -76,6 +76,7 @@ export class InternshipsService {
             },
           },
           job: {
+            companyId: user.id,
             type: {
               equals: type,
             },
@@ -85,9 +86,32 @@ export class InternshipsService {
           },
         },
         orderBy: orderByCriteria,
-        include: {
-          student: true,
-          job: true,
+        select: {
+          id: true,
+          initialDate: true,
+          until: true,
+          managerName: true,
+          advisorName: true,
+          student: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          job: {
+            select: {
+              id: true,
+              title: true,
+              type: true,
+              company: {
+                select: {
+                  name: true,
+                },
+              },
+              salary: true,
+              weeklyWorkload: true,
+            },
+          },
         },
       });
 
@@ -104,9 +128,12 @@ export class InternshipsService {
       );
 
     const internship =
-      await this.prisma.internship.findUnique({
+      await this.prisma.internship.findFirst({
         where: {
           id: internshipId,
+          job: {
+            companyId: user.id,
+          },
         },
         select: {
           id: true,
