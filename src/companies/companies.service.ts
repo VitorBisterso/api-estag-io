@@ -57,6 +57,7 @@ export class CompaniesService {
           name: true,
           phone: true,
           rating: true,
+          businessCategory: true,
         },
       });
 
@@ -85,6 +86,7 @@ export class CompaniesService {
           name: true,
           phone: true,
           rating: true,
+          businessCategory: true,
           reviews: {
             select: {
               id: true,

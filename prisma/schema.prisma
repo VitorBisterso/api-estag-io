@@ -7,25 +7,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum CompanyField {
-  AUTOMOBILISTICO
-  BANCO
-  BENS_DE_CONSUMO
-  COMIDAS_BEBIDAS
-  EDUCACAO
-  EMPREITEIRA
-  FARMACEUTICO_QUIMICOS
-  HOSPITAL_PLANO_DE_SAUDE
-  INDUSTRIA
-  LOGISTICA
-  MIDIA_PROPAGANDA
-  ONG
-  PETROLEO_ENERGIA_AMBIENTAIS
-  SAUDE_BEM_ESTAR
-  SEGURADORA
-  SERVICOS_FINANCEIROS
-  VAREJO
-  TI_TELECOMUNICACOES
+enum BusinessCategory {
+  AUTOMOTIVE
+  BANK
+  CONSUMER_GOODS
+  FOOD_AND_BEVERAGES
+  EDUCATION
+  CONSTRUCTION_COMPANY
+  PHARMACEUTICAL_AND_CHEMICALS
+  HOSPITAL_AND_HEALTH_PLAN
+  INDUSTRY
+  LOGISTICS
+  MEDIA_AND_ADVERTISING
+  NGO
+  OIL_ENERGY_AND_ENVIRONMENTAL
+  HEALTH_AND_WELL_BEING
+  INSURANCE_COMPANY
+  FINANCIAL_SERVICES
+  RETAIL
+  IT_AND_TELECOMMUNICATIONS
 }
 
 enum OpportunityType {
@@ -54,12 +54,13 @@ model Company {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cnpj     String  @unique
-  email    String  @unique
-  name     String
-  password String
-  phone    String
-  rating   Decimal @default(5.0)
+  cnpj             String           @unique
+  email            String           @unique
+  name             String
+  password         String
+  phone            String
+  rating           Decimal          @default(5.0)
+  businessCategory BusinessCategory
 
   reviews       Review[]
   opportunities Opportunity[]

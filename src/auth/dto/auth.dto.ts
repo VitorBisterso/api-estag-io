@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { BusinessCategory } from '@prisma/client';
 import {
   IsString,
   IsEmail,
@@ -124,6 +125,22 @@ export class AuthCompanyDto {
     message: getRequiredMessage('phone'),
   })
   phone: string;
+
+  @ApiProperty({
+    example: 'AUTOMOTIVE',
+    description: 'The company business category',
+  })
+  @IsString({
+    message: getStringMessage(
+      'business category',
+    ),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage(
+      'business category',
+    ),
+  })
+  businessCategory: BusinessCategory;
 }
 
 export class AuthSignInDto {

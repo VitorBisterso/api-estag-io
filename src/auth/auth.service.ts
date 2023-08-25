@@ -77,8 +77,14 @@ export class AuthService {
   }
 
   async signupCompany(dto: AuthCompanyDto) {
-    const { cnpj, email, name, password, phone } =
-      dto;
+    const {
+      cnpj,
+      email,
+      name,
+      password,
+      phone,
+      businessCategory,
+    } = dto;
 
     if (password.length < PASSWORD_SIZE)
       throw new BadRequestException(
@@ -102,6 +108,7 @@ export class AuthService {
             phone,
             cnpj,
             rating: DEFAULT_RATING,
+            businessCategory,
           },
         });
 

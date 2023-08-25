@@ -28,6 +28,7 @@ async function bootstrap() {
     .addTag('internships')
     .addTag('reviews')
     .addTag('companies')
+    .addTag('business-categories')
     .addBearerAuth()
     .build();
   const options: SwaggerDocumentOptions = {

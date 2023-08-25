@@ -10,6 +10,7 @@ import { ProcessStepsModule } from './process-steps/process-steps.module';
 import { InternshipsModule } from './internships/internships.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { CompaniesModule } from './companies/companies.module';
+import { BusinessCategoriesModule } from './business-categories/business-categories.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { CompaniesModule } from './companies/companies.module';
     InternshipsModule,
     ReviewsModule,
     CompaniesModule,
+    BusinessCategoriesModule,
   ],
 })
 export class AppModule {}
