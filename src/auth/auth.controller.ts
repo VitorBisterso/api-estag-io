@@ -20,6 +20,7 @@ import {
   SignInResponse,
   AccessTokenResponse,
   ResetPasswordDto,
+  ChangePasswordDto,
 } from './dto';
 import { RefreshTokenGuard } from './guard';
 
@@ -95,5 +96,17 @@ export class AuthController {
     return this.authService.resetPassword(
       dto.email,
     );
+  }
+
+  @ApiOperation({
+    summary: 'Change your password',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('change-password')
+  changePassword(@Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(dto);
   }
 }

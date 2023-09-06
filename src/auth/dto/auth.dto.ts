@@ -200,10 +200,53 @@ export class ResetPasswordDto {
   email: string;
 }
 
+export class ChangePasswordDto {
+  @ApiProperty({
+    description: 'The reset token',
+  })
+  @IsString({
+    message: getStringMessage('token'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('token'),
+  })
+  token: string;
+
+  @ApiProperty({
+    description: 'The user email',
+  })
+  @IsEmail(undefined, {
+    message: 'Email inválido',
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('email'),
+  })
+  email: string;
+
+  @ApiProperty({
+    description: 'The new password',
+  })
+  @IsString({
+    message: getStringMessage('password'),
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('password'),
+  })
+  password: string;
+}
+
 export interface Token extends JwtPayload {
   email: string;
   exp: number;
   iat: number;
   sub: string;
   userType: USER_TYPE;
+}
+
+export interface ResetPasswordToken
+  extends JwtPayload {
+  email: string;
+  userType: USER_TYPE;
+  iat: number;
+  exp: number;
 }

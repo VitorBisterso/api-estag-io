@@ -17,6 +17,8 @@ import {
   AuthCompanyDto,
   SignInResponse,
   Token,
+  ChangePasswordDto,
+  ResetPasswordToken,
 } from './dto';
 import {
   DEFAULT_RATING,
@@ -333,6 +335,95 @@ export class AuthService {
       },
       data: {
         resetPasswordToken: expirationToken,
+      },
+    });
+  }
+
+  async changePassword(dto: ChangePasswordDto) {
+    const { token, email, password } = dto;
+
+    const secret = this.config.get('JWT_SECRET');
+    const {
+      email: tokenEmail,
+      userType,
+      exp,
+    } = jwtDecode<ResetPasswordToken>(token);
+
+    const currentDate = new Date().getTime();
+    if (exp * 1000 <= currentDate)
+      throw new BadRequestException(
+        'Token inválido',
+      );
+
+    const valid = await this.jwt.verifyAsync(
+      token,
+      {
+        secret,
+      },
+    );
+
+    if (!valid)
+      throw new BadRequestException(
+        'Token inválido',
+      );
+
+    if (email !== tokenEmail)
+      throw new BadRequestException(
+        'Token inválido',
+      );
+
+    const hash = await argon.hash(password);
+    if (userType === 'USER') {
+      const { resetPasswordToken } =
+        await this.prisma.user.findUnique({
+          where: {
+            email,
+          },
+          select: {
+            resetPasswordToken: true,
+          },
+        });
+
+      if (resetPasswordToken !== token)
+        throw new BadRequestException(
+          'Token inválido',
+        );
+
+      await this.prisma.user.update({
+        where: {
+          email,
+        },
+        data: {
+          password: hash,
+          resetPasswordToken: null,
+        },
+      });
+
+      return;
+    }
+
+    const { resetPasswordToken } =
+      await this.prisma.company.findUnique({
+        where: {
+          email,
+        },
+        select: {
+          resetPasswordToken: true,
+        },
+      });
+
+    if (resetPasswordToken !== token)
+      throw new BadRequestException(
+        'Token inválido',
+      );
+
+    await this.prisma.company.update({
+      where: {
+        email,
+      },
+      data: {
+        password: hash,
+        resetPasswordToken: null,
       },
     });
   }
