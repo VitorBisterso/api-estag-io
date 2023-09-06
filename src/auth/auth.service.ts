@@ -26,6 +26,7 @@ import {
 } from 'src/consts';
 import { isCNPJValid } from './helpers';
 import { getNotFoundMessage } from 'src/utils/messages';
+import { MailingService } from 'src/mailing/mailing.service';
 
 @Injectable()
 export class AuthService {
@@ -33,6 +34,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private mail: MailingService,
   ) {}
 
   async signupUser(dto: AuthUserDto) {
@@ -337,6 +339,18 @@ export class AuthService {
         resetPasswordToken: expirationToken,
       },
     });
+
+    if (
+      process.env.SHOULD_SEND_EMAIL.toUpperCase() ===
+      'TRUE'
+    ) {
+      await this.mail.sendMail({
+        subject: 'Redefinição de senha',
+        to: email,
+        template: 'password',
+        context: { token: expirationToken },
+      });
+    }
   }
 
   async changePassword(dto: ChangePasswordDto) {

@@ -30,7 +30,7 @@ export class MailingService {
           (err, token) => {
             if (err) {
               reject(
-                'Failed to create access token',
+                'Mailing: Failed to create access token',
               );
             }
             resolve(token);

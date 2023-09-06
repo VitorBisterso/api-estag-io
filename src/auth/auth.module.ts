@@ -6,6 +6,7 @@ import {
   JwtStrategy,
   RefreshTokenStrategy,
 } from './strategy';
+import { MailingService } from 'src/mailing/mailing.service';
 
 @Module({
   imports: [JwtModule.register({})],
@@ -14,6 +15,7 @@ import {
     AuthService,
     JwtStrategy,
     RefreshTokenStrategy,
+    MailingService,
   ],
 })
 export class AuthModule {}
