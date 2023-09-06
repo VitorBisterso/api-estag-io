@@ -187,6 +187,19 @@ export class AccessTokenResponse {
   accessToken: string;
 }
 
+export class ResetPasswordDto {
+  @ApiProperty({
+    description: 'The user email',
+  })
+  @IsEmail(undefined, {
+    message: 'Email inválido',
+  })
+  @IsNotEmpty({
+    message: getRequiredMessage('email'),
+  })
+  email: string;
+}
+
 export interface Token extends JwtPayload {
   email: string;
   exp: number;

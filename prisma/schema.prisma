@@ -38,10 +38,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email    String   @unique
-  name     String
-  password String
-  birthday DateTime
+  email              String   @unique
+  name               String
+  password           String
+  birthday           DateTime
+  resetPasswordToken String?
 
   reviews       Review[]
   opportunities OpportunityUser[]
@@ -54,13 +55,14 @@ model Company {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cnpj             String           @unique
-  email            String           @unique
-  name             String
-  password         String
-  phone            String
-  rating           Decimal          @default(5.0)
-  businessCategory BusinessCategory
+  cnpj               String           @unique
+  email              String           @unique
+  name               String
+  password           String
+  phone              String
+  rating             Decimal          @default(5.0)
+  businessCategory   BusinessCategory
+  resetPasswordToken String?
 
   reviews       Review[]
   opportunities Opportunity[]

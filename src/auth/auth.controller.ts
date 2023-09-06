@@ -19,6 +19,7 @@ import {
   AuthCompanyDto,
   SignInResponse,
   AccessTokenResponse,
+  ResetPasswordDto,
 } from './dto';
 import { RefreshTokenGuard } from './guard';
 
@@ -79,6 +80,20 @@ export class AuthController {
 
     return this.authService.refreshToken(
       refreshToken,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Reset your password',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('reset-password')
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(
+      dto.email,
     );
   }
 }

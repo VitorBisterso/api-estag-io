@@ -268,4 +268,72 @@ export class AuthService {
       ),
     };
   }
+
+  async resetPassword(email: string) {
+    let user;
+    let isCompany = false;
+
+    user = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      isCompany = true;
+      user = await this.prisma.company.findUnique(
+        {
+          where: {
+            email,
+          },
+        },
+      );
+    }
+
+    if (!user)
+      throw new NotFoundException(
+        getNotFoundMessage(
+          'Usuário',
+          'email',
+          email,
+        ),
+      );
+
+    const secret = this.config.get('JWT_SECRET');
+    const expirationToken =
+      await this.jwt.signAsync(
+        {
+          email,
+          userType: isCompany
+            ? 'COMPANY'
+            : 'USER',
+        },
+        {
+          expiresIn: '2h',
+          secret,
+        },
+      );
+
+    if (isCompany) {
+      await this.prisma.company.update({
+        where: {
+          email,
+        },
+        data: {
+          resetPasswordToken: expirationToken,
+        },
+      });
+
+      return;
+    }
+
+    await this.prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        resetPasswordToken: expirationToken,
+      },
+    });
+  }
 }
