@@ -77,6 +77,11 @@ export class OpportunitiesService {
         _count: {
           id: true,
         },
+        where: isCompany
+          ? {
+              companyId: userId,
+            }
+          : {},
       });
 
     const opportunities =

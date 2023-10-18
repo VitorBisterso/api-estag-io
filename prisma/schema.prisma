@@ -114,7 +114,7 @@ model ProcessStep {
   onlyOnDeadline Boolean
 
   opportunityId Int
-  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   applicants User[]
 }
